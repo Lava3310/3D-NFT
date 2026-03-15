@@ -3,344 +3,529 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Voxel Universe</title>
+    <title>3D NFT · главная</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/themes.css">
+    <style>
+        .main-container {
+            max-width: 500px;
+            width: 100%;
+            height: 95vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            border-radius: 36px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            background: transparent;
+        }
+
+        .main-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--surface-color);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 36px;
+            border: 1px solid var(--border-color);
+            z-index: 0;
+        }
+
+        .main-content {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        /* Верхняя панель */
+        .top-bar {
+            margin-bottom: 20px;
+        }
+
+        .balance-section {
+            background: var(--card-color);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 40px;
+            padding: 20px 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .balance-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .balance-info {
+            flex: 1;
+        }
+
+        .balance-label {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
+            font-weight: 500;
+        }
+
+        .balance-row {
+            display: flex;
+            align-items: baseline;
+        }
+
+        .balance-amount {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -1px;
+        }
+
+        .balance-currency {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-left: 6px;
+            letter-spacing: -1px;
+        }
+
+        .settings-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 40px;
+            background: var(--surface-color);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 24px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 16px;
+            align-self: center;
+        }
+
+        .settings-icon:active {
+            transform: rotate(30deg) scale(0.92);
+            background: var(--accent-color);
+        }
+
+        /* Кнопки пополнения/вывода — чуть меньше */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .action-btn {
+            flex: 1;
+            background: var(--surface-color);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 40px;
+            padding: 10px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: var(--shadow);
+            color: var(--text-primary);
+        }
+
+        .action-btn:active {
+            transform: scale(0.96);
+            background: var(--accent-color);
+        }
+
+        .action-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 30px;
+            background: transparent;
+            border: 2px solid var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .action-text {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            margin: 16px 0;
+            scrollbar-width: none;
+        }
+
+        .content-area::-webkit-scrollbar {
+            display: none;
+        }
+
+        .placeholder-card {
+            background: var(--card-color);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 30px 20px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .bottom-nav {
+            background: var(--card-color);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 40px;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            box-shadow: var(--shadow);
+            margin-top: auto;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 0;
+            border-radius: 30px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: 0.2s;
+            gap: 4px;
+        }
+
+        .nav-item.active {
+            color: var(--accent-color);
+            background: var(--accent-glow);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+
+        .nav-label {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* Модалка настроек */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-sheet {
+            background: var(--card-color);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 44px;
+            padding: 28px 24px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .modal-sheet h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: var(--text-primary);
+        }
+
+        .modal-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-item:last-child {
+            border-bottom: none;
+        }
+
+        .modal-btn {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 40px;
+            padding: 8px 20px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 14px;
+            min-width: 100px;
+            text-align: center;
+            transition: 0.2s;
+        }
+
+        .modal-btn:active {
+            background: var(--accent-color);
+            transform: scale(0.95);
+        }
+
+        .notif-btn {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 40px;
+            padding: 8px 20px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 14px;
+            min-width: 100px;
+            text-align: center;
+            transition: 0.2s;
+        }
+
+        .notif-btn.on {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .close-modal {
+            width: 100%;
+            margin-top: 20px;
+            padding: 14px;
+            border-radius: 40px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <div class="ios-container" id="appContainer">
-        <!-- Верхняя панель (кликабельная для настроек) -->
-        <div class="top-panel" id="topPanel">
-            <div class="balance-row">
-                <div class="balance-main">
-                    <span class="balance-number" id="balance">125</span>
-                    <span class="balance-currency">TON</span>
+    <div class="main-container">
+        <div class="main-content">
+            <!-- Верхняя панель -->
+            <div class="top-bar">
+                <div class="balance-section">
+                    <div class="balance-top">
+                        <div class="balance-info">
+                            <div class="balance-label">Баланс</div>
+                            <div class="balance-row">
+                                <span class="balance-amount" id="balance">125</span>
+                                <span class="balance-currency">TON</span>
+                            </div>
+                        </div>
+                        <button class="settings-icon" id="settingsBtn">⚙️</button>
+                    </div>
+                    
+                    <!-- Кнопки пополнения/вывода (чуть меньше) -->
+                    <div class="action-buttons">
+                        <button class="action-btn" id="depositBtn">
+                            <span class="action-icon">+</span>
+                            <span class="action-text">Пополнить</span>
+                        </button>
+                        <button class="action-btn" id="withdrawBtn">
+                            <span class="action-icon">↑</span>
+                            <span class="action-text">Вывести</span>
+                        </button>
+                    </div>
                 </div>
-                <div class="est-badge">
-                    <span class="est-label">💰 Оценка</span>
-                    <span class="est-value" id="estimatedValue">~1.8k</span>
+            </div>
+
+            <!-- Контент -->
+            <div class="content-area" id="contentArea">
+                <div class="placeholder-card" id="homeContent">
+                    <h3 style="margin-bottom: 12px;">🏠 Главная</h3>
+                    <p>Здесь будут твои 3D NFT</p>
+                </div>
+                <div class="placeholder-card" id="topContent" style="display: none;">
+                    <h3 style="margin-bottom: 12px;">🏆 Топ</h3>
+                    <p>Лучшие кубы и коллекционеры</p>
+                </div>
+                <div class="placeholder-card" id="marketContent" style="display: none;">
+                    <h3 style="margin-bottom: 12px;">🛒 Маркет</h3>
+                    <p>Покупай и продавай кубы</p>
+                </div>
+                <div class="placeholder-card" id="auctionContent" style="display: none;">
+                    <h3 style="margin-bottom: 12px;">⚡ Аукцион</h3>
+                    <p>Торгуйся за редкие экземпляры</p>
+                </div>
+                <div class="placeholder-card" id="eventsContent" style="display: none;">
+                    <h3 style="margin-bottom: 12px;">🎉 События</h3>
+                    <p>Ежедневные бонусы и ивенты</p>
                 </div>
             </div>
 
-            <!-- Кнопки действий -->
-            <div class="action-buttons">
-                <button class="action-btn withdraw" id="withdrawBtn">
-                    <span class="action-icon">⬆️</span>
-                    <span>Вывести</span>
-                </button>
-                <button class="action-btn deposit" id="depositBtn">
-                    <span class="action-icon">+</span>
-                    <span>Пополнить</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Контент -->
-        <div class="content-area" id="contentArea">
-            <!-- Загружается динамически -->
-        </div>
-
-        <!-- Таб-бар -->
-        <div class="tab-bar" id="tabBar">
-            <div class="tab-item active" data-tab="home">
-                <span>🏠</span>
-                <span>Главная</span>
-            </div>
-            <div class="tab-item" data-tab="top">
-                <span>🏆</span>
-                <span>Топ</span>
-            </div>
-            <div class="tab-item" data-tab="market">
-                <span>🛒</span>
-                <span>Маркет</span>
-            </div>
-            <div class="tab-item" data-tab="auction">
-                <span>⚡</span>
-                <span>Аукцион</span>
-            </div>
-            <div class="tab-item" data-tab="events">
-                <span>🎉</span>
-                <span>События</span>
+            <!-- Нижний бар -->
+            <div class="bottom-nav" id="bottomNav">
+                <div class="nav-item active" data-tab="home">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-label">Главная</span>
+                </div>
+                <div class="nav-item" data-tab="top">
+                    <span class="nav-icon">🏆</span>
+                    <span class="nav-label">Топ</span>
+                </div>
+                <div class="nav-item" data-tab="market">
+                    <span class="nav-icon">🛒</span>
+                    <span class="nav-label">Маркет</span>
+                </div>
+                <div class="nav-item" data-tab="auction">
+                    <span class="nav-icon">⚡</span>
+                    <span class="nav-label">Аукцион</span>
+                </div>
+                <div class="nav-item" data-tab="events">
+                    <span class="nav-icon">🎉</span>
+                    <span class="nav-label">События</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Панель настроек (выезжает сверху как в Telegram) -->
-    <div class="settings-panel" id="settingsPanel">
-        <div class="settings-handle"></div>
-        <div class="settings-content">
+    <!-- Модалка настроек -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-sheet">
             <h2>Настройки</h2>
             
-            <div class="settings-group">
-                <div class="settings-item">
-                    <span>Тема оформления</span>
-                    <button class="theme-toggle" id="themeToggle">
-                        <span class="theme-icon">🌙</span>
-                        <span class="theme-text">Тёмная</span>
-                    </button>
-                </div>
-
-                <div class="settings-item">
-                    <span>Профиль</span>
-                    <button class="settings-nav" id="profileBtn">
-                        <span>Открыть</span>
-                        <span>→</span>
-                    </button>
-                </div>
-
-                <div class="settings-item">
-                    <span>Язык</span>
-                    <button class="settings-nav">
-                        <span>Русский</span>
-                        <span>→</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="settings-group">
-                <div class="settings-item">
-                    <span>Уведомления</span>
-                    <label class="switch">
-                        <input type="checkbox" checked id="notificationsToggle">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-
-                <div class="settings-item">
-                    <span>Звуки</span>
-                    <label class="switch">
-                        <input type="checkbox" checked id="soundsToggle">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="settings-group">
-                <div class="settings-item">
-                    <span>Условия использования</span>
-                    <button class="settings-nav" id="termsBtn">
-                        <span>Читать</span>
-                        <span>→</span>
-                    </button>
-                </div>
-
-                <div class="settings-item">
-                    <span>О приложении</span>
-                    <button class="settings-nav" id="aboutBtn">
-                        <span>Версия 1.0</span>
-                        <span>→</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="settings-footer">
-                <button class="ios-button secondary" id="closeSettingsBtn">
-                    Закрыть
+            <div class="modal-item">
+                <span>Тема</span>
+                <button class="modal-btn" id="themeToggle">
+                    <span id="themeText">🌙 Тёмная</span>
                 </button>
             </div>
+            
+            <div class="modal-item">
+                <span>Профиль</span>
+                <button class="modal-btn" id="profileBtn">Открыть</button>
+            </div>
+            
+            <div class="modal-item">
+                <span>Уведомления</span>
+                <button class="notif-btn" id="notifToggle">Вкл</button>
+            </div>
+            
+            <div class="modal-item">
+                <span>Условия</span>
+                <button class="modal-btn" id="termsBtn">Читать</button>
+            </div>
+
+            <button class="close-modal" id="closeSettings">Закрыть</button>
         </div>
     </div>
 
     <script>
-        // Состояние
-        let isDarkTheme = true;
-        let startY = 0;
-        let currentY = 0;
-        let isDragging = false;
-
-        // Элементы
-        const appContainer = document.getElementById('appContainer');
-        const settingsPanel = document.getElementById('settingsPanel');
-        const topPanel = document.getElementById('topPanel');
-        const tabs = document.querySelectorAll('.tab-item');
-        const contentArea = document.getElementById('contentArea');
-
-        // ===== НАСТРОЙКИ (свайп вниз / долгий тап) =====
-
-        // Долгий тап на верхней панели
-        let pressTimer;
-        topPanel.addEventListener('touchstart', (e) => {
-            pressTimer = setTimeout(() => {
-                openSettings();
-            }, 500);
-        });
-
-        topPanel.addEventListener('touchend', () => {
-            clearTimeout(pressTimer);
-        });
-
-        topPanel.addEventListener('touchmove', () => {
-            clearTimeout(pressTimer);
-        });
-
-        // Свайп вниз по всему экрану
-        appContainer.addEventListener('touchstart', (e) => {
-            startY = e.touches[0].clientY;
-            isDragging = true;
-        });
-
-        appContainer.addEventListener('touchmove', (e) => {
-            if (!isDragging) return;
-            currentY = e.touches[0].clientY;
-            const diff = currentY - startY;
-
-            if (diff > 50 && !settingsPanel.classList.contains('visible')) {
-                // Свайп вниз достаточно сильный
-                openSettings();
-                isDragging = false;
-            }
-        });
-
-        appContainer.addEventListener('touchend', () => {
-            isDragging = false;
-        });
-
-        // Открыть настройки
-        function openSettings() {
-            settingsPanel.classList.add('visible');
-            document.body.style.overflow = 'hidden';
-        }
-
-        // Закрыть настройки
-        function closeSettings() {
-            settingsPanel.classList.remove('visible');
-            document.body.style.overflow = '';
-        }
-
-        // Свайп вверх по панели настроек для закрытия
-        settingsPanel.addEventListener('touchstart', (e) => {
-            startY = e.touches[0].clientY;
-            isDragging = true;
-        });
-
-        settingsPanel.addEventListener('touchmove', (e) => {
-            if (!isDragging) return;
-            currentY = e.touches[0].clientY;
-            const diff = currentY - startY;
-
-            if (diff < -50 && settingsPanel.classList.contains('visible')) {
-                closeSettings();
-                isDragging = false;
-            }
-        });
-
-        settingsPanel.addEventListener('touchend', () => {
-            isDragging = false;
-        });
-
-        // Закрыть по кнопке
-        document.getElementById('closeSettingsBtn').addEventListener('click', closeSettings);
-
-        // ===== ТАБЫ =====
-
-        const tabContent = {
-            home: `
-                <div class="glass-card">
-                    <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 8px;">Мои 3D NFT</h2>
-                    <p style="color: var(--text-secondary); margin-bottom: 24px;">У вас пока нет кубов</p>
-                    <button class="ios-button" onclick="window.location.href='editor.html'">
-                        ✨ Создать первый куб
-                    </button>
-                </div>
-                <div class="glass-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h3 style="font-size: 20px; font-weight: 600;">Доступные воксели</h3>
-                        <span style="color: var(--accent-color);">8 шт</span>
-                    </div>
-                    <div style="display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px;">
-                        <div style="min-width: 80px; text-align: center;">
-                            <div style="width: 60px; height: 60px; background: #6080b0; border-radius: 20px; margin: 0 auto;"></div>
-                            <span style="font-size: 13px;">Камень</span>
-                            <span style="color: var(--text-secondary); font-size: 11px;">5 шт</span>
-                        </div>
-                        <div style="min-width: 80px; text-align: center;">
-                            <div style="width: 60px; height: 60px; background: #8b6b4d; border-radius: 20px; margin: 0 auto;"></div>
-                            <span style="font-size: 13px;">Дерево</span>
-                            <span style="color: var(--text-secondary); font-size: 11px;">3 шт</span>
-                        </div>
-                        <div style="min-width: 80px; text-align: center;">
-                            <div style="width: 60px; height: 60px; background: #f0c060; border-radius: 20px; margin: 0 auto;"></div>
-                            <span style="font-size: 13px;">Золото</span>
-                            <span style="color: var(--text-secondary); font-size: 11px;">1 шт</span>
-                        </div>
-                    </div>
-                </div>
-            `,
-            top: `
-                <div class="glass-card">
-                    <h3 style="font-size: 22px; font-weight: 600; margin-bottom: 20px;">Топ лидеров</h3>
-                    <p style="color: var(--text-secondary);">Рейтинг строителей скоро появится</p>
-                </div>
-            `,
-            market: `
-                <div class="glass-card">
-                    <h3 style="font-size: 22px; font-weight: 600; margin-bottom: 20px;">Маркет</h3>
-                    <p style="color: var(--text-secondary);">Магазин откроется в ближайшее время</p>
-                </div>
-            `,
-            auction: `
-                <div class="glass-card">
-                    <h3 style="font-size: 22px; font-weight: 600; margin-bottom: 20px;">Аукцион</h3>
-                    <p style="color: var(--text-secondary);">Следите за новыми лотами</p>
-                </div>
-            `,
-            events: `
-                <div class="glass-card">
-                    <h3 style="font-size: 22px; font-weight: 600; margin-bottom: 20px;">События</h3>
-                    <p style="color: var(--text-secondary);">Задания и игры скоро появятся</p>
-                </div>
-            `
+        // Переключение вкладок
+        const navItems = document.querySelectorAll('.nav-item');
+        const contents = {
+            home: document.getElementById('homeContent'),
+            top: document.getElementById('topContent'),
+            market: document.getElementById('marketContent'),
+            auction: document.getElementById('auctionContent'),
+            events: document.getElementById('eventsContent')
         };
 
-        function showTab(tabId) {
-            contentArea.innerHTML = tabContent[tabId] || tabContent.home;
-            tabs.forEach(t => {
-                t.classList.toggle('active', t.dataset.tab === tabId);
-            });
-        }
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                navItems.forEach(n => n.classList.remove('active'));
+                item.classList.add('active');
 
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                showTab(tab.dataset.tab);
+                Object.values(contents).forEach(c => c.style.display = 'none');
+
+                const tab = item.dataset.tab;
+                if (contents[tab]) {
+                    contents[tab].style.display = 'block';
+                }
             });
         });
 
-        showTab('home');
+        // Настройки
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsModal = document.getElementById('settingsModal');
+        const closeSettings = document.getElementById('closeSettings');
+        const themeToggle = document.getElementById('themeToggle');
+        const themeText = document.getElementById('themeText');
+        const notifToggle = document.getElementById('notifToggle');
 
-        // ===== ТЕМА =====
+        settingsBtn.addEventListener('click', () => {
+            settingsModal.classList.add('show');
+        });
 
-        document.getElementById('themeToggle').addEventListener('click', () => {
-            document.body.classList.toggle('light-theme');
-            isDarkTheme = !isDarkTheme;
-            
-            const icon = document.querySelector('.theme-icon');
-            const text = document.querySelector('.theme-text');
-            
-            if (isDarkTheme) {
-                icon.textContent = '🌙';
-                text.textContent = 'Тёмная';
-            } else {
-                icon.textContent = '☀️';
-                text.textContent = 'Светлая';
+        closeSettings.addEventListener('click', () => {
+            settingsModal.classList.remove('show');
+        });
+
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                settingsModal.classList.remove('show');
             }
         });
 
-        // ===== ПРОЧИЕ НАСТРОЙКИ =====
+        // Тема
+        let isDark = true;
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-theme');
+            isDark = !isDark;
+            themeText.textContent = isDark ? '🌙 Тёмная' : '☀️ Светлая';
+        });
 
+        // Уведомления
+        let notifOn = true;
+        notifToggle.addEventListener('click', () => {
+            notifOn = !notifOn;
+            notifToggle.textContent = notifOn ? 'Вкл' : 'Выкл';
+            notifToggle.classList.toggle('on', notifOn);
+        });
+        notifToggle.classList.add('on');
+
+        // Профиль
         document.getElementById('profileBtn').addEventListener('click', () => {
             alert('👤 Профиль в разработке');
+            settingsModal.classList.remove('show');
         });
 
+        // Условия
         document.getElementById('termsBtn').addEventListener('click', () => {
             alert('📋 Условия использования:\n\n• Создавайте уникальные кубы\n• Участвуйте в аукционах\n• Зарабатывайте TON');
+            settingsModal.classList.remove('show');
         });
 
-        document.getElementById('aboutBtn').addEventListener('click', () => {
-            alert('Voxel Universe v1.0\nСоздано с ❤️');
-        });
-
-        // ===== КНОПКИ ДЕЙСТВИЙ =====
-
+        // Кнопки действий
         document.getElementById('depositBtn').addEventListener('click', () => {
             alert('💰 Пополнение скоро будет доступно');
         });
@@ -349,17 +534,12 @@
             alert('💸 Вывод средств скоро будет доступен');
         });
 
-        // ===== ИМИТАЦИЯ БАЛАНСА =====
-
+        // Имитация баланса
         setInterval(() => {
             const balanceEl = document.getElementById('balance');
-            const estEl = document.getElementById('estimatedValue');
-            
-            if (balanceEl && estEl) {
+            if (balanceEl) {
                 const newBalance = (125 + Math.random() * 15).toFixed(1);
-                const newEst = (1800 + Math.random() * 200).toFixed(0);
                 balanceEl.textContent = newBalance;
-                estEl.textContent = '~' + newEst;
             }
         }, 8000);
     </script>
