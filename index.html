@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Voxel Universe · вход</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/themes.css">
+</head>
+<body>
+    <div class="ios-container">
+        <!-- Верхняя панель -->
+        <div class="dynamic-island">
+            <div class="balance-pill">
+                <span class="badge">Voxel</span>
+                <span class="amount">0 TON</span>
+            </div>
+            <div class="est-pill">
+                <span>⚡</span>
+                <span class="est-value">~0</span>
+            </div>
+        </div>
+
+        <div class="content-area" style="display: flex; align-items: center; justify-content: center;">
+            <div class="card" style="width: 100%; text-align: center;">
+                <h1 style="font-size: 48px; font-weight: 700; margin-bottom: 8px; background: linear-gradient(135deg, #ff8844, #5e5ce0); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    Voxel<br>Universe
+                </h1>
+                <p style="color: var(--text-secondary); margin-bottom: 32px; font-size: 16px;">
+                    Строй уникальные 3D-миры,<br>владей и продавай
+                </p>
+
+                <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: var(--card-color); border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 24px;">🎮</div>
+                        <div style="text-align: left;">
+                            <strong style="display: block;">3D-редактор</strong>
+                            <span style="color: var(--text-secondary);">Строй из вокселей</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: var(--card-color); border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 24px;">💰</div>
+                        <div style="text-align: left;">
+                            <strong style="display: block;">Зарабатывай</strong>
+                            <span style="color: var(--text-secondary);">Продавай творения</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 48px; height: 48px; background: var(--card-color); border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 24px;">🏆</div>
+                        <div style="text-align: left;">
+                            <strong style="display: block;">Аукционы</strong>
+                            <span style="color: var(--text-secondary);">Соревнуйся с другими</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="ios-button" id="connectWallet" style="margin-bottom: 12px;">
+                    Подключить TON кошелёк
+                </button>
+                <p style="color: var(--text-secondary); font-size: 12px;">
+                    Продолжая, вы принимаете условия использования
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('connectWallet').addEventListener('click', () => {
+            window.location.href = 'main.html';
+        });
+    </script>
+</body>
+</html>

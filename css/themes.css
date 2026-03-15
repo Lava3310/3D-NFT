@@ -1,0 +1,51 @@
+/* themes.css - синяя цветовая гамма, стекло */
+
+:root {
+    --bg-color: #0a0f1a;
+    --surface-color: rgba(20, 35, 55, 0.65);
+    --card-color: rgba(25, 40, 60, 0.7);
+    --text-primary: #ffffff;
+    --text-secondary: #a0b0c0;
+    --accent-color: #4a9eff;
+    --accent-glow: rgba(74, 158, 255, 0.25);
+    --border-color: rgba(100, 160, 255, 0.15);
+}
+
+.light-theme {
+    --bg-color: #e0e8f5;
+    --surface-color: rgba(255, 255, 255, 0.7);
+    --card-color: rgba(255, 255, 255, 0.75);
+    --text-primary: #0a1a2a;
+    --text-secondary: #506070;
+    --accent-color: #2a7aff;
+    --accent-glow: rgba(42, 122, 255, 0.2);
+    --border-color: rgba(42, 122, 255, 0.15);
+}
+
+/* Переключатель темы */
+.theme-switch {
+    background: var(--surface-color);
+    backdrop-filter: var(--blur);
+    border: 1px solid var(--border-color);
+    border-radius: 48px;
+    padding: 14px 20px;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.theme-switch:active {
+    background: var(--accent-color);
+    color: white;
+}
+
+.theme-switch span:last-child {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
