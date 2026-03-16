@@ -14,6 +14,7 @@ const contents = {
 // ===== Загрузка пользователя =====
 const userId = localStorage.getItem('userId');
 if (!userId) {
+    console.log('Нет userId, редирект на вход');
     window.location.href = 'index.html';
 } else {
     loadUser(userId).then(user => {
@@ -43,19 +44,11 @@ navItems.forEach(item => {
 
 // ===== Инициализация при загрузке =====
 document.addEventListener('DOMContentLoaded', () => {
-    // Тема
     initTheme();
-    
-    // Модалка настроек
     initModal('settingsBtn', 'settingsModal', 'closeSettings');
-    
-    // Уведомления
     initNotifications('notifToggle');
-    
-    // Баланс
     initBalanceSimulation('balance', 'estimatedValue', 125, 1250);
     
-    // Кнопка пополнения
     const depositBtn = document.getElementById('depositBtn');
     if (depositBtn) {
         depositBtn.addEventListener('click', () => {
@@ -63,7 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Кнопка вывода
     const withdrawBtn = document.getElementById('withdrawBtn');
     if (withdrawBtn) {
         withdrawBtn.addEventListener('click', () => {
@@ -71,7 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Кнопка профиля
     const profileBtn = document.getElementById('profileBtn');
     if (profileBtn) {
         profileBtn.addEventListener('click', () => {
@@ -81,7 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Кнопка условий
     const termsBtn = document.getElementById('termsBtn');
     if (termsBtn) {
         termsBtn.addEventListener('click', () => {

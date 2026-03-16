@@ -8,10 +8,11 @@
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/themes.css">
     <link rel="stylesheet" href="css/index.css">
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <div class="index-container">
-        <!-- Добавляем контейнер для центрирования -->
         <div class="screen" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
             <div class="logo-3d">
                 <div class="cube">
@@ -26,7 +27,7 @@
 
             <div class="login-header">
                 <h1>3D NFT</h1>
-                <p class="subtitle">Создавай. Владей. Продавай.</p>
+                <p class="subtitle">Уникальные 3D NFT</p>
             </div>
 
             <div class="features">
@@ -47,10 +48,8 @@
                 </div>
             </div>
 
-            <button class="connect-btn btn btn-primary" id="loginBtn">
-                <span class="btn-icon">⚡</span>
-                Войти через Telegram
-            </button>
+            <!-- Контейнер для виджета Telegram -->
+            <div id="telegram-login-container" style="display: flex; justify-content: center; margin: 20px 0; min-height: 60px;"></div>
 
             <p class="terms">Продолжая, вы принимаете условия использования</p>
         </div>
@@ -58,7 +57,6 @@
         <button class="theme-btn" id="themeToggle">🌙</button>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module" src="js/index.js"></script>
 </body>
 </html>
