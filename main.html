@@ -4,67 +4,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>3D NFT · главная</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/themes.css">
     <style>
-        .main-container {
-            max-width: 500px;
-            width: 100%;
-            height: 95vh;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            border-radius: 36px;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            background: transparent;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
-        .main-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--surface-color);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 36px;
-            border: 1px solid var(--border-color);
-            z-index: 0;
+        :root {
+            --bg-start: #0a1424;
+            --bg-end: #1a2a3a;
+            --surface-color: rgba(20, 35, 55, 0.7);
+            --card-color: rgba(25, 45, 65, 0.6);
+            --text-primary: #ffffff;
+            --text-secondary: #a0b8d0;
+            --accent-color: #3a7bd5;
+            --accent-glow: rgba(58, 123, 213, 0.3);
+            --border-color: rgba(80, 140, 255, 0.2);
+            --shadow: 0 8px 32px rgba(0, 20, 40, 0.3);
+            --blur: blur(20px);
+        }
+
+        body.light-theme {
+            --bg-start: #e0ecff;
+            --bg-end: #d0e0ff;
+            --surface-color: rgba(255, 255, 255, 0.7);
+            --card-color: rgba(255, 255, 255, 0.6);
+            --text-primary: #0a1a2a;
+            --text-secondary: #406898;
+            --accent-color: #2a7aff;
+            --accent-glow: rgba(42, 122, 255, 0.2);
+            --border-color: rgba(42, 122, 255, 0.15);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
+            background-size: cover;
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 16px;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 500px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
         }
 
         .main-content {
-            position: relative;
-            z-index: 1;
             width: 100%;
             height: 100%;
             display: flex;
             flex-direction: column;
-            padding: 20px;
+            gap: 16px;
         }
 
         /* Верхняя панель */
-        .top-bar {
-            margin-bottom: 20px;
-        }
-
         .balance-section {
             background: var(--card-color);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-radius: 40px;
-            padding: 20px 24px;
+            border-radius: 36px;
+            padding: 18px 22px;
             border: 1px solid var(--border-color);
             box-shadow: var(--shadow);
+            width: 100%;
+            flex-shrink: 0;
         }
 
         .balance-top {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
 
         .balance-info {
@@ -72,9 +92,9 @@
         }
 
         .balance-label {
-            font-size: 16px;
+            font-size: 14px;
             color: var(--text-secondary);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             letter-spacing: 0.3px;
             font-weight: 500;
         }
@@ -85,14 +105,14 @@
         }
 
         .balance-amount {
-            font-size: 36px;
+            font-size: 32px;
             font-weight: 700;
             color: var(--text-primary);
             letter-spacing: -1px;
         }
 
         .balance-currency {
-            font-size: 36px;
+            font-size: 32px;
             font-weight: 700;
             color: var(--text-primary);
             margin-left: 6px;
@@ -100,23 +120,22 @@
         }
 
         .settings-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 40px;
+            width: 48px;
+            height: 48px;
+            border-radius: 36px;
             background: var(--surface-color);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border-color);
             color: var(--text-primary);
-            font-size: 24px;
+            font-size: 22px;
             cursor: pointer;
             transition: 0.2s;
             box-shadow: var(--shadow);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-left: 16px;
-            align-self: center;
+            margin-left: 12px;
         }
 
         .settings-icon:active {
@@ -124,10 +143,9 @@
             background: var(--accent-color);
         }
 
-        /* Кнопки пополнения/вывода — чуть меньше */
         .action-buttons {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             justify-content: center;
         }
 
@@ -137,8 +155,8 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border-color);
-            border-radius: 40px;
-            padding: 10px 0;
+            border-radius: 36px;
+            padding: 8px 0;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -155,59 +173,58 @@
         }
 
         .action-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 30px;
+            width: 26px;
+            height: 26px;
+            border-radius: 26px;
             background: transparent;
             border: 2px solid var(--text-primary);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 500;
             color: var(--text-primary);
         }
 
         .action-text {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 500;
             color: var(--text-secondary);
         }
 
+        /* Контент */
         .content-area {
             flex: 1;
-            overflow-y: auto;
-            margin: 16px 0;
-            scrollbar-width: none;
-        }
-
-        .content-area::-webkit-scrollbar {
-            display: none;
+            overflow-y: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .placeholder-card {
             background: var(--card-color);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-radius: 30px;
-            padding: 30px 20px;
+            border-radius: 28px;
+            padding: 20px;
             border: 1px solid var(--border-color);
             text-align: center;
             color: var(--text-secondary);
-            margin-bottom: 16px;
         }
 
+        /* Нижний бар */
         .bottom-nav {
             background: var(--card-color);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-radius: 40px;
-            padding: 8px 12px;
+            border-radius: 36px;
+            padding: 8px 10px;
             border: 1px solid var(--border-color);
             display: flex;
             justify-content: space-around;
             box-shadow: var(--shadow);
-            margin-top: auto;
+            flex-shrink: 0;
+            width: 100%;
         }
 
         .nav-item {
@@ -215,8 +232,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 8px 0;
-            border-radius: 30px;
+            padding: 6px 0;
+            border-radius: 28px;
             color: var(--text-secondary);
             cursor: pointer;
             transition: 0.2s;
@@ -229,15 +246,15 @@
         }
 
         .nav-icon {
-            font-size: 20px;
+            font-size: 18px;
         }
 
         .nav-label {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 500;
         }
 
-        /* Модалка настроек */
+        /* Модалка */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -260,18 +277,18 @@
             background: var(--card-color);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-radius: 44px;
-            padding: 28px 24px;
+            border-radius: 40px;
+            padding: 24px 20px;
             width: 90%;
-            max-width: 400px;
+            max-width: 360px;
             border: 1px solid var(--border-color);
             box-shadow: var(--shadow);
         }
 
         .modal-sheet h2 {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 600;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             color: var(--text-primary);
         }
 
@@ -279,7 +296,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px 0;
+            padding: 10px 0;
             border-bottom: 1px solid var(--border-color);
         }
 
@@ -290,12 +307,12 @@
         .modal-btn {
             background: var(--surface-color);
             border: 1px solid var(--border-color);
-            border-radius: 40px;
-            padding: 8px 20px;
+            border-radius: 36px;
+            padding: 6px 16px;
             color: var(--text-primary);
             cursor: pointer;
-            font-size: 14px;
-            min-width: 100px;
+            font-size: 13px;
+            min-width: 90px;
             text-align: center;
             transition: 0.2s;
         }
@@ -308,12 +325,12 @@
         .notif-btn {
             background: var(--surface-color);
             border: 1px solid var(--border-color);
-            border-radius: 40px;
-            padding: 8px 20px;
+            border-radius: 36px;
+            padding: 6px 16px;
             color: var(--text-primary);
             cursor: pointer;
-            font-size: 14px;
-            min-width: 100px;
+            font-size: 13px;
+            min-width: 90px;
             text-align: center;
             transition: 0.2s;
         }
@@ -325,13 +342,13 @@
 
         .close-modal {
             width: 100%;
-            margin-top: 20px;
-            padding: 14px;
-            border-radius: 40px;
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 36px;
             background: var(--accent-color);
             color: white;
             border: none;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
         }
@@ -341,53 +358,50 @@
     <div class="main-container">
         <div class="main-content">
             <!-- Верхняя панель -->
-            <div class="top-bar">
-                <div class="balance-section">
-                    <div class="balance-top">
-                        <div class="balance-info">
-                            <div class="balance-label">Баланс</div>
-                            <div class="balance-row">
-                                <span class="balance-amount" id="balance">125</span>
-                                <span class="balance-currency">TON</span>
-                            </div>
+            <div class="balance-section">
+                <div class="balance-top">
+                    <div class="balance-info">
+                        <div class="balance-label">Баланс</div>
+                        <div class="balance-row">
+                            <span class="balance-amount" id="balance">125</span>
+                            <span class="balance-currency">TON</span>
                         </div>
-                        <button class="settings-icon" id="settingsBtn">⚙️</button>
                     </div>
-                    
-                    <!-- Кнопки пополнения/вывода (чуть меньше) -->
-                    <div class="action-buttons">
-                        <button class="action-btn" id="depositBtn">
-                            <span class="action-icon">+</span>
-                            <span class="action-text">Пополнить</span>
-                        </button>
-                        <button class="action-btn" id="withdrawBtn">
-                            <span class="action-icon">↑</span>
-                            <span class="action-text">Вывести</span>
-                        </button>
-                    </div>
+                    <button class="settings-icon" id="settingsBtn">⚙️</button>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="action-btn" id="depositBtn">
+                        <span class="action-icon">+</span>
+                        <span class="action-text">Пополнить</span>
+                    </button>
+                    <button class="action-btn" id="withdrawBtn">
+                        <span class="action-icon">↑</span>
+                        <span class="action-text">Вывести</span>
+                    </button>
                 </div>
             </div>
 
             <!-- Контент -->
             <div class="content-area" id="contentArea">
                 <div class="placeholder-card" id="homeContent">
-                    <h3 style="margin-bottom: 12px;">🏠 Главная</h3>
+                    <h3 style="margin-bottom: 8px;">🏠 Главная</h3>
                     <p>Здесь будут твои 3D NFT</p>
                 </div>
                 <div class="placeholder-card" id="topContent" style="display: none;">
-                    <h3 style="margin-bottom: 12px;">🏆 Топ</h3>
+                    <h3 style="margin-bottom: 8px;">🏆 Топ</h3>
                     <p>Лучшие кубы и коллекционеры</p>
                 </div>
                 <div class="placeholder-card" id="marketContent" style="display: none;">
-                    <h3 style="margin-bottom: 12px;">🛒 Маркет</h3>
+                    <h3 style="margin-bottom: 8px;">🛒 Маркет</h3>
                     <p>Покупай и продавай кубы</p>
                 </div>
                 <div class="placeholder-card" id="auctionContent" style="display: none;">
-                    <h3 style="margin-bottom: 12px;">⚡ Аукцион</h3>
+                    <h3 style="margin-bottom: 8px;">⚡ Аукцион</h3>
                     <p>Торгуйся за редкие экземпляры</p>
                 </div>
                 <div class="placeholder-card" id="eventsContent" style="display: none;">
-                    <h3 style="margin-bottom: 12px;">🎉 События</h3>
+                    <h3 style="margin-bottom: 8px;">🎉 События</h3>
                     <p>Ежедневные бонусы и ивенты</p>
                 </div>
             </div>
@@ -418,7 +432,7 @@
         </div>
     </div>
 
-    <!-- Модалка настроек -->
+    <!-- Модалка -->
     <div class="modal-overlay" id="settingsModal">
         <div class="modal-sheet">
             <h2>Настройки</h2>
