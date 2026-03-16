@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>3D NFT · вход</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/themes.css">
-    <!-- Supabase JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="css/index.css">
 </head>
 <body>
-    <div class="app">
-        <div class="screen">
+    <div class="index-container">
+        <!-- Добавляем контейнер для центрирования -->
+        <div class="screen" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
             <div class="logo-3d">
                 <div class="cube">
                     <div class="face front">3</div>
@@ -46,8 +47,10 @@
                 </div>
             </div>
 
-            <!-- Контейнер для виджета Telegram -->
-            <div id="telegram-login-container" style="display: flex; justify-content: center; margin: 20px 0;"></div>
+            <button class="connect-btn btn btn-primary" id="loginBtn">
+                <span class="btn-icon">⚡</span>
+                Войти через Telegram
+            </button>
 
             <p class="terms">Продолжая, вы принимаете условия использования</p>
         </div>
@@ -55,82 +58,7 @@
         <button class="theme-btn" id="themeToggle">🌙</button>
     </div>
 
-    <script>
-        // ===== Supabase =====
-        const SUPABASE_URL = 'https://kkellolonnuyqdfngmzk.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_sB1ZOY6NKpznS8on4tWKgw_JdMV5EXt';
-        
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        // ===== Тема (исправлено) =====
-        document.addEventListener('DOMContentLoaded', function() {
-            const themeToggle = document.getElementById('themeToggle');
-            if (themeToggle) {
-                themeToggle.addEventListener('click', function() {
-                    document.body.classList.toggle('light-theme');
-                    this.textContent = document.body.classList.contains('light-theme') ? '☀️' : '🌙';
-                });
-            }
-        });
-
-        // ===== Telegram Login =====
-        window.onTelegramAuth = async function(user) {
-            try {
-                // Проверяем, есть ли пользователь
-                let { data: existingUser, error } = await supabase
-                    .from('users')
-                    .select('*')
-                    .eq('telegram_id', user.id)
-                    .maybeSingle();
-                
-                // Если нет — создаём
-                if (!existingUser) {
-                    const { data: newUser, error: insertError } = await supabase
-                        .from('users')
-                        .insert([
-                            {
-                                telegram_id: user.id,
-                                username: user.username || user.first_name,
-                                avatar: user.photo_url || '👤',
-                                cube_slots: 2,
-                                balance_ton: 0
-                            }
-                        ])
-                        .select()
-                        .single();
-                    
-                    if (insertError) throw insertError;
-                    existingUser = newUser;
-                }
-                
-                // Сохраняем в localStorage
-                localStorage.setItem('userId', existingUser.id);
-                localStorage.setItem('userName', existingUser.username);
-                localStorage.setItem('userAvatar', existingUser.avatar);
-                
-                // Переход
-                window.location.href = 'main.html';
-                
-            } catch (error) {
-                console.error('Ошибка:', error);
-                alert('Ошибка входа');
-            }
-        };
-
-        // ===== Вставляем виджет Telegram =====
-        (function() {
-            const container = document.getElementById('telegram-login-container');
-            if (!container) return;
-
-            const script = document.createElement('script');
-            script.src = 'https://telegram.org/js/telegram-widget.js?22';
-            script.setAttribute('data-telegram-login', 'nft3d_bot');
-            script.setAttribute('data-size', 'large');
-            script.setAttribute('data-radius', '40');
-            script.setAttribute('data-onauth', 'onTelegramAuth(user)');
-            script.setAttribute('data-request-access', 'write');
-            container.appendChild(script);
-        })();
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="js/index.js"></script>
 </body>
 </html>

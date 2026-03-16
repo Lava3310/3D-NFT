@@ -1,0 +1,210 @@
+/* profile.css — стили только для страницы профиля */
+
+.balance-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Профиль пользователя */
+.user-card {
+    background: var(--card-color);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 36px;
+    padding: 18px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+}
+
+.avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 30px;
+    background: var(--accent-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: white;
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.user-info {
+    flex: 1;
+}
+
+.user-name {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.wallet-address {
+    font-size: 11px;
+    color: var(--text-secondary);
+    background: var(--surface-color);
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    border: 1px solid var(--border-color);
+}
+
+.edit-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 30px;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-btn:active {
+    background: var(--accent-color);
+    transform: scale(0.92);
+}
+
+/* Плашка подключения кошелька */
+.connect-wallet-panel {
+    background: var(--card-color);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 36px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    width: 100%;
+}
+
+.connect-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 14px;
+}
+
+.wallet-input {
+    width: 100%;
+    padding: 14px 18px;
+    border-radius: 30px;
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 13px;
+    margin-bottom: 14px;
+    outline: none;
+}
+
+.wallet-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.connect-submit {
+    width: 100%;
+    padding: 14px;
+    border-radius: 30px;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.connect-submit:active {
+    transform: scale(0.97);
+}
+
+/* История действий */
+.history-section {
+    background: var(--card-color);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 36px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    flex: 1;
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.history-title {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.history-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scrollbar-width: none;
+}
+
+.history-list::-webkit-scrollbar {
+    display: none;
+}
+
+.history-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.history-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
+    background: var(--surface-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+}
+
+.history-details {
+    flex: 1;
+}
+
+.history-action {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.history-time {
+    font-size: 10px;
+    color: var(--text-secondary);
+}
+
+.history-value {
+    font-weight: 600;
+    color: var(--accent-color);
+    font-size: 13px;
+}
+
+/* История по умолчанию (заглушка) */
+.history-list:empty::before {
+    content: "История пока пуста";
+    color: var(--text-secondary);
+    font-size: 13px;
+    text-align: center;
+    padding: 20px;
+}

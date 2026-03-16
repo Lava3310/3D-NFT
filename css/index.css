@@ -1,0 +1,178 @@
+/* index.css — стили только для страницы входа */
+
+.screen {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+}
+
+.logo-3d {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    perspective: 800px;
+    transform-style: preserve-3d;
+    margin-bottom: 8px;
+}
+
+.cube {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    transform-style: preserve-3d;
+    transform: rotateX(-20deg) rotateY(-35deg);
+    animation: floatLogo 6s infinite ease-in-out;
+}
+
+@keyframes floatLogo {
+    0%, 100% { transform: rotateX(-20deg) rotateY(-35deg) translateY(0); }
+    50% { transform: rotateX(-18deg) rotateY(-33deg) translateY(-5px); }
+}
+
+.face {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: rgba(58, 123, 213, 0.15);
+    backdrop-filter: blur(2px);
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 0 15px rgba(58, 123, 213, 0.9);
+    box-shadow: 0 0 20px rgba(58, 123, 213, 0.3);
+    backface-visibility: visible;
+}
+
+.front { transform: translateZ(40px); }
+.back { transform: rotateY(180deg) translateZ(40px); }
+.right { transform: rotateY(90deg) translateZ(40px); }
+.left { transform: rotateY(-90deg) translateZ(40px); }
+.top { transform: rotateX(90deg) translateZ(40px); font-size: 20px; line-height: 1.2; }
+.bottom { transform: rotateX(-90deg) translateZ(40px); }
+
+body.light-theme .face {
+    border-color: rgba(42, 122, 255, 0.8);
+    color: #0a1a2a;
+    text-shadow: 0 0 15px rgba(42, 122, 255, 0.5);
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.login-header h1 {
+    font-size: 48px;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    background: linear-gradient(135deg, var(--accent-color), #5e5ce0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 20px var(--accent-glow);
+    line-height: 1;
+    text-align: center;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 15px;
+    text-align: center;
+}
+
+.features {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+    margin: 8px 0;
+}
+
+.feature {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+}
+
+.feature-icon {
+    width: 52px;
+    height: 52px;
+    background: var(--card-color);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.feature-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.feature-desc {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.connect-btn {
+    width: 100%;
+    padding: 18px;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 8px 0;
+}
+
+.btn-icon {
+    font-size: 20px;
+}
+
+.terms {
+    color: var(--text-secondary);
+    font-size: 11px;
+    opacity: 0.6;
+    text-align: center;
+}
+
+.theme-btn {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    width: 44px;
+    height: 44px;
+    border-radius: 30px;
+    background: var(--card-color);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 20px;
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.theme-btn:active {
+    transform: scale(0.92);
+    background: var(--accent-color);
+}

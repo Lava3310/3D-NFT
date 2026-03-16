@@ -1,0 +1,155 @@
+/* base.css — базовые стили для всех страниц */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
+    background-size: cover;
+    color: var(--text-primary);
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 16px;
+    transition: background 0.3s, color 0.2s;
+}
+
+/* Контейнеры для разных страниц */
+.index-container,
+.main-container,
+.profile-container {
+    width: 100%;
+    max-width: 500px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content,
+.profile-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Стеклянные панели */
+.glass-panel {
+    background: var(--card-color);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+/* Кнопки */
+.btn {
+    background: var(--surface-color);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-color);
+    border-radius: 40px;
+    padding: 12px 20px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: var(--shadow);
+}
+
+.btn:active {
+    transform: scale(0.96);
+    background: var(--accent-color);
+}
+
+.btn-primary {
+    background: var(--accent-color);
+    color: white;
+    box-shadow: 0 8px 20px var(--accent-glow);
+}
+
+/* Модалки */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal-sheet {
+    background: var(--card-color);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 44px;
+    padding: 24px 20px;
+    width: 90%;
+    max-width: 360px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.modal-sheet h2 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+}
+
+.modal-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-item:last-child {
+    border-bottom: none;
+}
+
+.modal-btn {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 40px;
+    padding: 6px 16px;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 13px;
+    min-width: 90px;
+    text-align: center;
+    transition: 0.2s;
+}
+
+.modal-btn:active {
+    background: var(--accent-color);
+    transform: scale(0.95);
+}
+
+.close-modal {
+    width: 100%;
+    margin-top: 16px;
+    padding: 12px;
+    border-radius: 40px;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
