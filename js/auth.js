@@ -6,16 +6,16 @@ const SUPABASE_ANON_KEY = 'sb_publishable_sB1ZOY6NKpznS8on4tWKgw_JdMV5EXt';
 
 const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ===== Обработчик Telegram Login =====
-window.onTelegramAuth = async function(user) {
-    console.log('Telegram user:', user);
-    
+// ===== Функция входа =====
+export async function loginUser(telegramData) {
     try {
+        console.log('Вход с данными:', telegramData);
+        
         // 1. Проверяем, есть ли пользователь в базе
         let { data: existingUser, error } = await supabase
             .from('users')
             .select('*')
-            .eq('telegram_id', user.id)
+            .eq('telegram_id', telegramData.id)
             .maybeSingle();
         
         if (error) {
@@ -31,9 +31,9 @@ window.onTelegramAuth = async function(user) {
                 .from('users')
                 .insert([
                     {
-                        telegram_id: user.id,
-                        username: user.username || user.first_name,
-                        avatar: user.photo_url || '👤',
+                        telegram_id: telegramData.id,
+                        username: telegramData.username || telegramData.first_name,
+                        avatar: telegramData.photo_url || '👤',
                         cube_slots: 2,
                         balance_ton: 0
                     }
@@ -62,10 +62,28 @@ window.onTelegramAuth = async function(user) {
         // 4. Переходим на главную
         window.location.href = 'main.html';
         
+        return true;
+        
     } catch (error) {
         console.error('Ошибка входа:', error);
         alert('Ошибка при входе: ' + error.message);
+        return false;
     }
+}
+
+// ===== Обработчик Telegram Login =====
+window.onTelegramAuth = async function(user) {
+    console.log('Telegram user:', user);
+    
+    const telegramData = {
+        id: user.id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        username: user.username,
+        photo_url: user.photo_url
+    };
+    
+    await loginUser(telegramData);
 };
 
 // ===== Функция для вставки виджета =====
@@ -91,4 +109,24 @@ export function initTelegramWidget() {
     
     container.appendChild(script);
     console.log('Виджет Telegram добавлен');
+}
+
+// ===== Загрузка пользователя (для main.js) =====
+export async function loadUser(userId) {
+    if (!userId) {
+        return null;
+    }
+    
+    const { data: user, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
+    
+    if (error) {
+        console.error('Ошибка загрузки пользователя:', error);
+        return null;
+    }
+    
+    return user;
 }
