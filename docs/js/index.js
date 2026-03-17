@@ -11,14 +11,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Telegram может передать данные в query или hash
     const tgData = urlParams.get('tgAuthResult') || hashParams.get('tgAuthResult');
+
     console.log('Проверяем tgData:', tgData);
     if (tgData) {
         try {
-            const user = JSON.parse(decodeURIComponent(tgData));
+            console.log('Сырые данные:', tgData);
+            
+            // Пробуем просто JSON.parse (без decodeURIComponent)
+            const user = JSON.parse(tgData);
+            console.log('Распарсенный пользователь:', user);
+            
             await loginUser(user);
+            
+            window.location.hash = '';
             return;
         } catch (e) {
             console.error('Ошибка при обработке OAuth:', e);
+            alert('Ошибка при входе. Попробуйте ещё раз.');
         }
     }
     
