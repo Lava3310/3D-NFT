@@ -54,7 +54,7 @@ async function loadProfile() {
         registerElement.textContent = `На сайте с ${date}`;
     }
 
-    // Оценочная стоимость (позже будет считаться из кубов)
+    // Оценочная стоимость
     document.getElementById('estimatedValue').textContent = '0 TON';
 }
 
@@ -86,7 +86,6 @@ async function loadTransactionHistory() {
         const item = document.createElement('div');
         item.className = 'history-item';
         
-        // Определяем иконку и текст в зависимости от типа
         let icon = '💰';
         let actionText = '';
         let valueText = '';
@@ -110,7 +109,7 @@ async function loadTransactionHistory() {
             case 'cube_mint':
                 icon = '🎨';
                 actionText = 'Создание нового куба';
-                valueText = `#${tx.cube_id.slice(0, 4)}`;
+                valueText = `#${tx.cube_id?.slice(0, 4) || ''}`;
                 break;
             case 'spin_win':
                 icon = '🎁';
@@ -164,7 +163,6 @@ async function updateWalletInDB(walletAddress) {
             metadata: { wallet: walletAddress }
         }]);
     
-    // Перезагружаем историю
     await loadTransactionHistory();
     
     return true;
@@ -172,39 +170,49 @@ async function updateWalletInDB(walletAddress) {
 
 // ===== Инициализация TON Connect =====
 async function initTonConnect() {
+    // Ждём загрузки TON Connect
+    let attempts = 0;
+    const maxAttempts = 20;
+    
+    while (!window.TONConnectUI && attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+    }
+    
     if (!window.TONConnectUI) {
-        console.error('TON Connect UI не загружен');
+        console.error('TON Connect UI не загрузился после 2 секунд');
         return;
     }
 
-    tonConnectUI = new TONConnectUI.TONConnectUI({
-        manifestUrl: 'https://lava3310.github.io/3D-NFT/tonconnect-manifest.json',
-        buttonRootId: 'ton-connect-button'
-    });
+    try {
+        tonConnectUI = new TONConnectUI.TONConnectUI({
+            manifestUrl: 'https://lava3310.github.io/3D-NFT/docs/tonconnect-manifest.json',
+            buttonRootId: 'ton-connect-button'
+        });
 
-    // Проверяем, был ли уже подключён кошелёк
-    const currentWallet = await tonConnectUI.getCurrentWallet();
-    if (currentWallet) {
-        const address = currentWallet.account.address;
-        await updateWalletInDB(address);
-    }
-
-    // Слушаем изменения подключения
-    tonConnectUI.onStatusChange(async (wallet) => {
-        if (wallet) {
-            const address = wallet.account.address;
+        const currentWallet = await tonConnectUI.getCurrentWallet();
+        if (currentWallet) {
+            const address = currentWallet.account.address;
             await updateWalletInDB(address);
-        } else {
-            // Отключили кошелёк
-            await supabase
-                .from('users')
-                .update({ wallet_address: null })
-                .eq('id', userId);
-            
-            document.getElementById('walletDisplay').textContent = 'Кошелёк не подключён';
-            await loadTransactionHistory();
         }
-    });
+
+        tonConnectUI.onStatusChange(async (wallet) => {
+            if (wallet) {
+                const address = wallet.account.address;
+                await updateWalletInDB(address);
+            } else {
+                await supabase
+                    .from('users')
+                    .update({ wallet_address: null })
+                    .eq('id', userId);
+                
+                document.getElementById('walletDisplay').textContent = 'Кошелёк не подключён';
+                await loadTransactionHistory();
+            }
+        });
+    } catch (error) {
+        console.error('Ошибка при инициализации TON Connect:', error);
+    }
 }
 
 // ===== Инициализация =====
@@ -217,8 +225,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadProfile();
     await loadTransactionHistory();
 
-    // Инициализация TON Connect
-    await initTonConnect();
+    // Запускаем TON Connect с небольшой задержкой
+    setTimeout(() => {
+        initTonConnect();
+    }, 500);
 
     // Кнопка назад
     const backBtn = document.getElementById('backBtn');
