@@ -150,12 +150,12 @@ async function updateUserName(newName) {
 
 // ===== Редактирование кошелька =====
 async function updateWallet(newWallet) {
-    // Очищаем от пробелов
-    const cleanWallet = newWallet.trim();
+    // Очищаем от пробелов и дефисов
+    const cleanWallet = newWallet.replace(/[\s-]/g, '');
     
     // Проверка формата
     if (!isValidTonWallet(cleanWallet)) {
-        alert('❌ Неверный формат TON кошелька\n\nАдрес должен:\n• Начинаться с EQ, UQ или 0Q\n• Быть длиной 48 символов\n• Содержать только буквы и цифры');
+        alert('❌ Неверный формат TON кошелька\n\nАдрес должен:\n• Начинаться с EQ, UQ или 0Q\n• Быть длиной 48 символов');
         return false;
     }
     
