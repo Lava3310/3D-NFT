@@ -15,10 +15,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('Проверяем tgData:', tgData);
     if (tgData) {
         try {
-            console.log('Сырые данные:', tgData);
+            console.log('Сырые данные (base64):', tgData);
             
-            // Пробуем просто JSON.parse (без decodeURIComponent)
-            const user = JSON.parse(tgData);
+            // Декодируем из base64
+            const decodedString = atob(tgData);
+            console.log('Декодированная строка:', decodedString);
+            
+            // Парсим JSON
+            const user = JSON.parse(decodedString);
             console.log('Распарсенный пользователь:', user);
             
             await loginUser(user);
