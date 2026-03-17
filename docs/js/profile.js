@@ -18,22 +18,31 @@ if (!userId) {
 // ===== Состояние редактирования =====
 let isEditing = false;
 
-// ===== Валидация TON кошелька =====
+// ===== Валидация TON кошелька (улучшенная) =====
 function isValidTonWallet(address) {
     if (!address) return false;
     
+    // Убираем пробелы и дефисы
+    const cleanAddress = address.replace(/[\s-]/g, '');
+    
     // TON адреса начинаются с EQ, UQ или 0Q
     const validPrefixes = ['EQ', 'UQ', '0Q'];
-    const hasValidPrefix = validPrefixes.some(prefix => address.startsWith(prefix));
+    const hasValidPrefix = validPrefixes.some(prefix => cleanAddress.startsWith(prefix));
     
-    if (!hasValidPrefix) return false;
+    if (!hasValidPrefix) {
+        console.log('Неверный префикс');
+        return false;
+    }
     
     // Длина должна быть 48 символов
-    if (address.length !== 48) return false;
+    if (cleanAddress.length !== 48) {
+        console.log('Неверная длина:', cleanAddress.length);
+        return false;
+    }
     
-    // Проверяем, что остальные символы — буквы и цифры (Base64)
-    const base64Regex = /^[A-Za-z0-9+/=]+$/;
-    const body = address.slice(2); // убираем префикс
+    // Проверяем, что остальные символы допустимы (Base64)
+    const base64Regex = /^[A-Za-z0-9+/]+=*$/;
+    const body = cleanAddress.slice(2);
     
     return base64Regex.test(body);
 }
