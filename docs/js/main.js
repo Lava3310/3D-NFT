@@ -66,9 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileBtn = document.getElementById('profileBtn');
     if (profileBtn) {
         profileBtn.addEventListener('click', () => {
-            alert('👤 Профиль в разработке');
-            const modal = document.getElementById('settingsModal');
-            if (modal) modal.classList.remove('show');
+            window.location.href = 'userprofile.html';
         });
     }
     

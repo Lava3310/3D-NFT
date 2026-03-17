@@ -208,3 +208,9 @@
     text-align: center;
     padding: 20px;
 }
+
+.register-date {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
