@@ -5,7 +5,7 @@ import { loadUser } from './auth.js';
 import { createSupabaseClient } from './utils.js';
 
 const SUPABASE_URL = 'https://kkellolonnuyqdfngmzk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrZWxsb2xvbm51eXFkZm5nbXprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxMTM4MjAsImV4cCI6MjA1NzY4OTgyMH0.KeR2F8hVeQZGe08ZbcF97gR8hTrvLWslbFv23vEClKc';
+const SUPABASE_ANON_KEY = 'sb_publishable_sB1ZOY6NKpznS8on4tWKgw_JdMV5EXt';
 
 const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -17,6 +17,26 @@ if (!userId) {
 
 // ===== Состояние редактирования =====
 let isEditing = false;
+
+// ===== Валидация TON кошелька =====
+function isValidTonWallet(address) {
+    if (!address) return false;
+    
+    // TON адреса начинаются с EQ, UQ или 0Q
+    const validPrefixes = ['EQ', 'UQ', '0Q'];
+    const hasValidPrefix = validPrefixes.some(prefix => address.startsWith(prefix));
+    
+    if (!hasValidPrefix) return false;
+    
+    // Длина должна быть 48 символов
+    if (address.length !== 48) return false;
+    
+    // Проверяем, что остальные символы — буквы и цифры (Base64)
+    const base64Regex = /^[A-Za-z0-9+/=]+$/;
+    const body = address.slice(2); // убираем префикс
+    
+    return base64Regex.test(body);
+}
 
 // ===== Загрузка профиля =====
 async function loadProfile() {
@@ -76,6 +96,7 @@ async function uploadAvatar(file) {
 
     if (uploadError) {
         console.error('Ошибка загрузки:', uploadError);
+        alert('Ошибка при загрузке файла');
         return null;
     }
 
@@ -120,16 +141,27 @@ async function updateUserName(newName) {
 
 // ===== Редактирование кошелька =====
 async function updateWallet(newWallet) {
+    // Очищаем от пробелов
+    const cleanWallet = newWallet.trim();
+    
+    // Проверка формата
+    if (!isValidTonWallet(cleanWallet)) {
+        alert('❌ Неверный формат TON кошелька\n\nАдрес должен:\n• Начинаться с EQ, UQ или 0Q\n• Быть длиной 48 символов\n• Содержать только буквы и цифры');
+        return false;
+    }
+    
     const { error } = await supabase
         .from('users')
-        .update({ wallet_address: newWallet })
+        .update({ wallet_address: cleanWallet })
         .eq('id', userId);
 
     if (error) {
         console.error('Ошибка при обновлении кошелька:', error);
-        alert('Не удалось обновить кошелёк');
+        alert('❌ Ошибка при сохранении кошелька');
         return false;
     }
+    
+    alert('✅ Кошелёк успешно подключён');
     return true;
 }
 
@@ -148,7 +180,7 @@ function toggleEditMode(enable) {
     if (enable) {
         nameDisplay.style.display = 'none';
         walletDisplay.style.display = 'none';
-        editAvatarBtn.style.display = 'none';
+        if (editAvatarBtn) editAvatarBtn.style.display = 'flex';
         
         nameInput.style.display = 'block';
         walletInput.style.display = 'block';
@@ -160,7 +192,7 @@ function toggleEditMode(enable) {
     } else {
         nameDisplay.style.display = 'block';
         walletDisplay.style.display = 'block';
-        editAvatarBtn.style.display = 'block';
+        if (editAvatarBtn) editAvatarBtn.style.display = 'none';
         
         nameInput.style.display = 'none';
         walletInput.style.display = 'none';
@@ -211,7 +243,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Кнопка редактирования
+    // Кнопка редактирования профиля
     const editBtn = document.getElementById('editProfileBtn');
     if (editBtn) {
         editBtn.addEventListener('click', () => {
@@ -232,6 +264,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             const file = e.target.files[0];
             if (!file) return;
             
+            // Проверка размера (макс 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('Файл слишком большой. Максимум 2MB');
+                return;
+            }
+            
+            // Проверка типа
+            if (!file.type.startsWith('image/')) {
+                alert('Можно загружать только изображения');
+                return;
+            }
+            
             const avatarUrl = await uploadAvatar(file);
             if (avatarUrl) {
                 const success = await updateAvatar(avatarUrl);
@@ -242,6 +286,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     avatarImg.src = avatarUrl;
                     avatarImg.style.display = 'block';
                     avatarPlaceholder.style.display = 'none';
+                    
+                    // Выходим из режима редактирования после загрузки
+                    toggleEditMode(false);
                 }
             }
         });
@@ -268,16 +315,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     const connectPanel = document.getElementById('connectPanel');
 
     if (connectSubmit) {
+        // Авто-форматирование поля ввода
+        walletInput.addEventListener('input', (e) => {
+            // Убираем пробелы и переводим в верхний регистр
+            e.target.value = e.target.value.replace(/\s/g, '').toUpperCase();
+        });
+
         connectSubmit.addEventListener('click', async () => {
             const walletAddress = walletInput.value.trim();
-            if (walletAddress) {
-                const success = await updateWallet(walletAddress);
-                if (success) {
-                    walletDisplay.textContent = walletAddress;
-                    connectPanel.style.display = 'none';
-                }
-            } else {
+            if (!walletAddress) {
                 alert('Введите адрес кошелька');
+                return;
+            }
+            
+            const success = await updateWallet(walletAddress);
+            if (success) {
+                walletDisplay.textContent = walletAddress;
+                connectPanel.style.display = 'none';
+                walletInput.value = ''; // очищаем поле
             }
         });
     }
