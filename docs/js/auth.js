@@ -144,7 +144,7 @@ export function handleTelegramLogin() {
     const redirectUrl = encodeURIComponent('https://lava3310.github.io/3D-NFT/index.html');
     const botId = 8531815975;
     const authUrl = `https://oauth.telegram.org/auth?bot_id=${botId}
-    &origin=${encodeURIComponent(window.location.origin)}&redirect_url=${redirectUrl}&state=${state}&response_type=code`;
+    &origin=${encodeURIComponent('https://lava3310.github.io')}&redirect_url=${redirectUrl}&state=${state}&response_type=code`;
     // Перенаправляем в том же окне
     window.location.href = authUrl;
 }
