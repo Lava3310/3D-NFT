@@ -61,7 +61,7 @@ export async function loginUser(telegramData) {
         
         // 4. Переходим на главную
         console.log(existingUser);
-        // window.location.href = 'main.html';
+        window.location.href = '/3D-NFT/main.html';
         
         return true;
         
