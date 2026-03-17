@@ -15,9 +15,6 @@ if (!userId) {
     window.location.href = 'index.html';
 }
 
-// ===== Состояние редактирования =====
-let isEditing = false;
-
 // ===== TON Connect =====
 let tonConnectUI;
 
@@ -31,10 +28,10 @@ async function loadProfile() {
 
     // Основные данные
     document.getElementById('userName').textContent = user.username;
-    document.getElementById('walletDisplay').textContent = user.wallet_address || 'Кошелёк не подключён';
     document.getElementById('balance').textContent = user.balance_ton || 0;
+    document.getElementById('walletDisplay').textContent = user.wallet_address || 'Кошелёк не подключён';
 
-    // Аватар
+    // Аватар из Telegram
     const avatarImg = document.getElementById('userAvatar');
     const avatarPlaceholder = document.getElementById('avatarPlaceholder');
     
@@ -43,7 +40,7 @@ async function loadProfile() {
         avatarImg.style.display = 'block';
         avatarPlaceholder.style.display = 'none';
     } else {
-        avatarPlaceholder.textContent = user.avatar || '👤';
+        avatarPlaceholder.textContent = '👤';
         avatarPlaceholder.style.display = 'flex';
         avatarImg.style.display = 'none';
     }
@@ -57,8 +54,90 @@ async function loadProfile() {
         registerElement.textContent = `На сайте с ${date}`;
     }
 
-    // Оценочная стоимость
-    document.getElementById('estimatedValue').textContent = user.balance_ton ? `${user.balance_ton * 10} TON` : '0 TON';
+    // Оценочная стоимость (позже будет считаться из кубов)
+    document.getElementById('estimatedValue').textContent = '0 TON';
+}
+
+// ===== Загрузка истории транзакций =====
+async function loadTransactionHistory() {
+    const { data: transactions, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+    if (error) {
+        console.error('Ошибка загрузки истории:', error);
+        return;
+    }
+
+    const historyList = document.getElementById('historyList');
+    if (!historyList) return;
+
+    if (!transactions || transactions.length === 0) {
+        historyList.innerHTML = '<div class="history-empty">История пока пуста</div>';
+        return;
+    }
+
+    historyList.innerHTML = '';
+    
+    transactions.forEach(tx => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        
+        // Определяем иконку и текст в зависимости от типа
+        let icon = '💰';
+        let actionText = '';
+        let valueText = '';
+        
+        switch(tx.type) {
+            case 'ton_deposit':
+                icon = '📥';
+                actionText = 'Пополнение баланса';
+                valueText = `+${tx.amount_ton} TON`;
+                break;
+            case 'ton_withdraw':
+                icon = '📤';
+                actionText = 'Вывод средств';
+                valueText = `-${tx.amount_ton} TON`;
+                break;
+            case 'voxel_purchase':
+                icon = '🧱';
+                actionText = `Покупка ${tx.voxel_quantity} ${tx.voxel_type}`;
+                valueText = `-${tx.amount_ton} TON`;
+                break;
+            case 'cube_mint':
+                icon = '🎨';
+                actionText = 'Создание нового куба';
+                valueText = `#${tx.cube_id.slice(0, 4)}`;
+                break;
+            case 'spin_win':
+                icon = '🎁';
+                actionText = 'Выигрыш в колесе';
+                valueText = `+${tx.voxel_quantity} ${tx.voxel_type}`;
+                break;
+            default:
+                icon = '📋';
+                actionText = tx.type;
+                valueText = '';
+        }
+        
+        const date = new Date(tx.created_at).toLocaleDateString('ru-RU', {
+            day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+        });
+        
+        item.innerHTML = `
+            <div class="history-icon">${icon}</div>
+            <div class="history-details">
+                <div class="history-action">${actionText}</div>
+                <div class="history-time">${date}</div>
+            </div>
+            <div class="history-value">${valueText}</div>
+        `;
+        
+        historyList.appendChild(item);
+    });
 }
 
 // ===== Обновление кошелька в БД =====
@@ -75,20 +154,31 @@ async function updateWalletInDB(walletAddress) {
     }
     
     document.getElementById('walletDisplay').textContent = walletAddress;
-    alert('✅ Кошелёк успешно подключён');
+    
+    // Добавляем транзакцию в историю
+    await supabase
+        .from('transactions')
+        .insert([{
+            user_id: userId,
+            type: 'wallet_connected',
+            metadata: { wallet: walletAddress }
+        }]);
+    
+    // Перезагружаем историю
+    await loadTransactionHistory();
+    
     return true;
 }
 
 // ===== Инициализация TON Connect =====
 async function initTonConnect() {
-    // Ждём загрузки TON Connect UI
     if (!window.TONConnectUI) {
         console.error('TON Connect UI не загружен');
         return;
     }
 
     tonConnectUI = new TONConnectUI.TONConnectUI({
-        manifestUrl: 'https://lava3310.github.io/3D-NFT/docs/tonconnect-manifest.json',
+        manifestUrl: 'https://lava3310.github.io/3D-NFT/tonconnect-manifest.json',
         buttonRootId: 'ton-connect-button'
     });
 
@@ -106,129 +196,15 @@ async function initTonConnect() {
             await updateWalletInDB(address);
         } else {
             // Отключили кошелёк
-            await updateWalletInDB(null);
+            await supabase
+                .from('users')
+                .update({ wallet_address: null })
+                .eq('id', userId);
+            
             document.getElementById('walletDisplay').textContent = 'Кошелёк не подключён';
+            await loadTransactionHistory();
         }
     });
-}
-
-// ===== Загрузка аватара в Storage =====
-async function uploadAvatar(file) {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${userId}-${Date.now()}.${fileExt}`;
-    const filePath = `avatars/${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file);
-
-    if (uploadError) {
-        console.error('Ошибка загрузки:', uploadError);
-        alert('Ошибка при загрузке файла');
-        return null;
-    }
-
-    const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath);
-
-    return publicUrl;
-}
-
-// ===== Обновление аватара в БД =====
-async function updateAvatar(avatarUrl) {
-    const { error } = await supabase
-        .from('users')
-        .update({ avatar: avatarUrl })
-        .eq('id', userId);
-
-    if (error) {
-        console.error('Ошибка при обновлении аватара:', error);
-        alert('Не удалось обновить аватар');
-        return false;
-    }
-    return true;
-}
-
-// ===== Редактирование имени =====
-async function updateUserName(newName) {
-    const { error } = await supabase
-        .from('users')
-        .update({ username: newName })
-        .eq('id', userId);
-
-    if (error) {
-        console.error('Ошибка при обновлении имени:', error);
-        alert('Не удалось обновить имя');
-        return false;
-    }
-
-    localStorage.setItem('userName', newName);
-    return true;
-}
-
-// ===== Включение/выключение режима редактирования =====
-function toggleEditMode(enable) {
-    isEditing = enable;
-    
-    const nameDisplay = document.getElementById('userName');
-    const editAvatarBtn = document.getElementById('editAvatarBtn');
-    
-    const nameInput = document.getElementById('editNameInput');
-    const editActions = document.getElementById('editActions');
-    
-    if (enable) {
-        nameDisplay.style.display = 'none';
-        if (editAvatarBtn) editAvatarBtn.style.display = 'flex';
-        
-        nameInput.style.display = 'block';
-        editActions.style.display = 'flex';
-        
-        nameInput.value = nameDisplay.textContent;
-        
-    } else {
-        nameDisplay.style.display = 'block';
-        if (editAvatarBtn) editAvatarBtn.style.display = 'none';
-        
-        nameInput.style.display = 'none';
-        editActions.style.display = 'none';
-    }
-}
-
-// ===== Сохранение изменений =====
-async function saveChanges() {
-    const nameInput = document.getElementById('editNameInput');
-    const newName = nameInput.value.trim();
-    const currentName = document.getElementById('userName').textContent;
-    
-    if (!newName) {
-        alert('Имя не может быть пустым');
-        return;
-    }
-    
-    if (newName === currentName) {
-        toggleEditMode(false);
-        return;
-    }
-    
-    // Отправляем в базу
-    const { error } = await supabase
-        .from('users')
-        .update({ username: newName })
-        .eq('id', userId);
-
-    if (error) {
-        console.error('Ошибка при обновлении имени:', error);
-        alert('❌ Не удалось обновить имя');
-        return;
-    }
-    
-    // Обновляем локально
-    document.getElementById('userName').textContent = newName;
-    localStorage.setItem('userName', newName);
-    
-    alert('✅ Имя успешно обновлено');
-    toggleEditMode(false);
 }
 
 // ===== Инициализация =====
@@ -239,6 +215,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initBalanceSimulation('balance', 'estimatedValue', 125, 1250);
 
     await loadProfile();
+    await loadTransactionHistory();
 
     // Инициализация TON Connect
     await initTonConnect();
@@ -251,68 +228,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Кнопка редактирования профиля
-    const editBtn = document.getElementById('editProfileBtn');
-    if (editBtn) {
-        editBtn.addEventListener('click', () => {
-            toggleEditMode(!isEditing);
-        });
-    }
-
-    // Кнопка редактирования аватара
-    const editAvatarBtn = document.getElementById('editAvatarBtn');
-    const avatarUpload = document.getElementById('avatarUpload');
-    
-    if (editAvatarBtn && avatarUpload) {
-        editAvatarBtn.addEventListener('click', () => {
-            avatarUpload.click();
-        });
-        
-        avatarUpload.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            if (file.size > 2 * 1024 * 1024) {
-                alert('Файл слишком большой. Максимум 2MB');
-                return;
-            }
-            
-            if (!file.type.startsWith('image/')) {
-                alert('Можно загружать только изображения');
-                return;
-            }
-            
-            const avatarUrl = await uploadAvatar(file);
-            if (avatarUrl) {
-                const success = await updateAvatar(avatarUrl);
-                if (success) {
-                    const avatarImg = document.getElementById('userAvatar');
-                    const avatarPlaceholder = document.getElementById('avatarPlaceholder');
-                    
-                    avatarImg.src = avatarUrl;
-                    avatarImg.style.display = 'block';
-                    avatarPlaceholder.style.display = 'none';
-                    
-                    toggleEditMode(false);
-                }
-            }
-        });
-    }
-
-    // Кнопка сохранения
-    const saveBtn = document.getElementById('saveEditBtn');
-    if (saveBtn) {
-        saveBtn.addEventListener('click', saveChanges);
-    }
-
-    // Кнопка отмены
-    const cancelBtn = document.getElementById('cancelEditBtn');
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', () => {
-            toggleEditMode(false);
-        });
-    }
-
     // Кнопки действий
     document.getElementById('depositBtn')?.addEventListener('click', () => alert('💰 Пополнение скоро будет доступно'));
     document.getElementById('withdrawBtn')?.addEventListener('click', () => alert('💸 Вывод средств скоро будет доступен'));
@@ -321,22 +236,4 @@ document.addEventListener('DOMContentLoaded', async () => {
         alert('📋 Условия использования:\n\n• Создавайте уникальные кубы\n• Участвуйте в аукционах\n• Зарабатывайте TON');
         document.getElementById('settingsModal')?.classList.remove('show');
     });
-
-    // Демо-история
-    setTimeout(() => {
-        const historyList = document.getElementById('historyList');
-        if (historyList) {
-            const newItem = document.createElement('div');
-            newItem.className = 'history-item';
-            newItem.innerHTML = `
-                <div class="history-icon">🎁</div>
-                <div class="history-details">
-                    <div class="history-action">Ежедневный бонус</div>
-                    <div class="history-time">только что</div>
-                </div>
-                <div class="history-value">+10 TON</div>
-            `;
-            historyList.prepend(newItem);
-        }
-    }, 5000);
 });
