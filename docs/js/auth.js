@@ -60,7 +60,8 @@ export async function loginUser(telegramData) {
         console.log('Данные сохранены, переходим на главную');
         
         // 4. Переходим на главную
-        window.location.href = 'main.html';
+        console.log(existingUser);
+        // window.location.href = 'main.html';
         
         return true;
         
