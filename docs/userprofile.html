@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/themes.css">
     <link rel="stylesheet" href="css/profile.css">
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <div class="profile-container">
@@ -46,7 +48,7 @@
                 </div>
             </div>
 
-            <!-- Профиль -->
+            <!-- Профиль пользователя -->
             <div class="user-card">
                 <div class="avatar" id="userAvatar">👤</div>
                 <div class="user-info">
@@ -58,11 +60,8 @@
                     
                     <div class="register-date" id="registerDate"></div>
                     
-                    <div class="avatar-edit">
-                        <span>Аватар:</span>
-                        <span id="userAvatarDisplay">👤</span>
-                        <input type="text" id="editAvatarInput" class="edit-input" placeholder="Новый аватар (эмодзи)" style="display: none;" value="👤">
-                    </div>
+                    <!-- Панель выбора эмодзи для аватара -->
+                    <div id="emojiPicker" class="emoji-picker" style="display: none;"></div>
                 </div>
                 
                 <div class="edit-actions" id="editActions" style="display: none;">
@@ -71,48 +70,75 @@
                 </div>
                 
                 <button class="edit-btn" id="editProfileBtn">✎</button>
+                <button class="edit-avatar-btn" id="editAvatarBtn">🔄</button>
             </div>
 
-            <!-- Подключение кошелька -->
+            <!-- Плашка подключения кошелька (пока не подключён) -->
             <div class="connect-wallet-panel" id="connectPanel">
                 <div class="connect-title">Подключить TON кошелёк</div>
                 <input type="text" class="wallet-input" id="walletInput" placeholder="Введите адрес кошелька">
                 <button class="connect-submit" id="connectSubmit">Подключить</button>
             </div>
 
-            <!-- История -->
+            <!-- История действий -->
             <div class="history-section">
                 <div class="history-title">История действий</div>
                 <div class="history-list" id="historyList">
-                    <!-- элементы истории -->
+                    <div class="history-item">
+                        <div class="history-icon">💰</div>
+                        <div class="history-details">
+                            <div class="history-action">Пополнение баланса</div>
+                            <div class="history-time">2 часа назад</div>
+                        </div>
+                        <div class="history-value">+50 TON</div>
+                    </div>
+                    <div class="history-item">
+                        <div class="history-icon">🎨</div>
+                        <div class="history-details">
+                            <div class="history-action">Создан новый куб</div>
+                            <div class="history-time">вчера</div>
+                        </div>
+                        <div class="history-value">#3421</div>
+                    </div>
+                    <div class="history-item">
+                        <div class="history-icon">🏆</div>
+                        <div class="history-details">
+                            <div class="history-action">Победа в аукционе</div>
+                            <div class="history-time">3 дня назад</div>
+                        </div>
+                        <div class="history-value">+250 TON</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Модалка -->
+    <!-- Модалка настроек -->
     <div class="modal-overlay" id="settingsModal">
         <div class="modal-sheet">
             <h2>Настройки</h2>
+            
             <div class="modal-item">
                 <span>Тема</span>
                 <button class="modal-btn" id="themeToggle">
                     <span id="themeText">🌙 Тёмная</span>
                 </button>
             </div>
+            
             <div class="modal-item">
                 <span>Уведомления</span>
                 <button class="notif-btn" id="notifToggle">Вкл</button>
             </div>
+            
             <div class="modal-item">
                 <span>Условия</span>
                 <button class="modal-btn" id="termsBtn">Читать</button>
             </div>
+
             <button class="close-modal" id="closeSettings">Закрыть</button>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module" src="js/profile.js"></script>
 </body>
 </html>

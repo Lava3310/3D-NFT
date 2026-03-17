@@ -5,7 +5,7 @@ import { loadUser } from './auth.js';
 import { createSupabaseClient } from './utils.js';
 
 const SUPABASE_URL = 'https://kkellolonnuyqdfngmzk.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrZWxsb2xvbm51eXFkZm5nbXprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxMTM4MjAsImV4cCI6MjA1NzY4OTgyMH0.KeR2F8hVeQZGe08ZbcF97gR8hTrvLWslbFv23vEClKc';
+const SUPABASE_ANON_KEY = 'sb_publishable_sB1ZOY6NKpznS8on4tWKgw_JdMV5EXt';
 
 const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -14,6 +14,9 @@ const userId = localStorage.getItem('userId');
 if (!userId) {
     window.location.href = 'index.html';
 }
+
+// ===== Список доступных эмодзи для аватара =====
+const avatarEmojis = ['👤', '😎', '🦸', '🐉', '🚀', '🌟', '🎮', '💎', '🔥', '🌈'];
 
 // ===== Состояние редактирования =====
 let isEditing = false;
@@ -83,7 +86,7 @@ async function updateWallet(newWallet) {
     return true;
 }
 
-// ===== Редактирование аватара =====
+// ===== Редактирование аватара (эмодзи) =====
 async function updateAvatar(newAvatar) {
     const { error } = await supabase
         .from('users')
@@ -98,6 +101,30 @@ async function updateAvatar(newAvatar) {
     return true;
 }
 
+// ===== Показать выбор эмодзи =====
+function showEmojiPicker() {
+    const container = document.getElementById('emojiPicker');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    container.style.display = 'flex';
+    
+    avatarEmojis.forEach(emoji => {
+        const btn = document.createElement('button');
+        btn.className = 'emoji-btn';
+        btn.textContent = emoji;
+        btn.onclick = async () => {
+            const success = await updateAvatar(emoji);
+            if (success) {
+                document.getElementById('userAvatar').textContent = emoji;
+                container.style.display = 'none';
+                toggleEditMode(false);
+            }
+        };
+        container.appendChild(btn);
+    });
+}
+
 // ===== Включение/выключение режима редактирования =====
 function toggleEditMode(enable) {
     isEditing = enable;
@@ -105,38 +132,38 @@ function toggleEditMode(enable) {
     const nameDisplay = document.getElementById('userName');
     const walletDisplay = document.getElementById('walletDisplay');
     const avatarDisplay = document.getElementById('userAvatar');
+    const editAvatarBtn = document.getElementById('editAvatarBtn');
     
     const nameInput = document.getElementById('editNameInput');
     const walletInput = document.getElementById('editWalletInput');
-    const avatarInput = document.getElementById('editAvatarInput');
     const editActions = document.getElementById('editActions');
     
     if (enable) {
-        // Прячем текст, показываем поля ввода
         nameDisplay.style.display = 'none';
         walletDisplay.style.display = 'none';
         avatarDisplay.style.display = 'none';
+        if (editAvatarBtn) editAvatarBtn.style.display = 'none';
         
         nameInput.style.display = 'block';
         walletInput.style.display = 'block';
-        avatarInput.style.display = 'block';
         editActions.style.display = 'flex';
         
-        // Заполняем поля текущими значениями
         nameInput.value = nameDisplay.textContent;
         walletInput.value = walletDisplay.textContent === 'Кошелёк не подключён' ? '' : walletDisplay.textContent;
-        avatarInput.value = avatarDisplay.textContent;
         
     } else {
-        // Прячем поля, показываем текст
         nameDisplay.style.display = 'block';
         walletDisplay.style.display = 'block';
         avatarDisplay.style.display = 'block';
+        if (editAvatarBtn) editAvatarBtn.style.display = 'block';
         
         nameInput.style.display = 'none';
         walletInput.style.display = 'none';
-        avatarInput.style.display = 'none';
         editActions.style.display = 'none';
+        
+        // Скрываем панель выбора эмодзи
+        const emojiPicker = document.getElementById('emojiPicker');
+        if (emojiPicker) emojiPicker.style.display = 'none';
     }
 }
 
@@ -144,11 +171,9 @@ function toggleEditMode(enable) {
 async function saveChanges() {
     const nameInput = document.getElementById('editNameInput');
     const walletInput = document.getElementById('editWalletInput');
-    const avatarInput = document.getElementById('editAvatarInput');
     
     const newName = nameInput.value.trim();
     const newWallet = walletInput.value.trim();
-    const newAvatar = avatarInput.value.trim() || '👤';
     
     let success = true;
     
@@ -160,15 +185,9 @@ async function saveChanges() {
         success = success && await updateWallet(newWallet);
     }
     
-    if (newAvatar && newAvatar !== document.getElementById('userAvatar').textContent) {
-        success = success && await updateAvatar(newAvatar);
-    }
-    
     if (success) {
-        // Обновляем отображение
-        document.getElementById('userName').textContent = newName || document.getElementById('userName').textContent;
-        document.getElementById('walletDisplay').textContent = newWallet || 'Кошелёк не подключён';
-        document.getElementById('userAvatar').textContent = newAvatar;
+        if (newName) document.getElementById('userName').textContent = newName;
+        if (newWallet) document.getElementById('walletDisplay').textContent = newWallet;
         
         toggleEditMode(false);
     }
@@ -176,23 +195,19 @@ async function saveChanges() {
 
 // ===== Инициализация =====
 document.addEventListener('DOMContentLoaded', async () => {
-    // Базовые инициализации
     initTheme();
     initModal('settingsBtn', 'settingsModal', 'closeSettings');
     initNotifications('notifToggle');
     initBalanceSimulation('balance', 'estimatedValue', 125, 1250);
 
-    // Загружаем профиль
     await loadProfile();
 
-    // Кнопка назад (ИСПРАВЛЕНО)
+    // Кнопка назад
     const backBtn = document.getElementById('backBtn');
     if (backBtn) {
         backBtn.addEventListener('click', () => {
             window.location.href = 'main.html';
         });
-    } else {
-        console.error('Кнопка назад не найдена');
     }
 
     // Кнопка редактирования
@@ -201,6 +216,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         editBtn.addEventListener('click', () => {
             toggleEditMode(!isEditing);
         });
+    }
+
+    // Кнопка редактирования аватара
+    const editAvatarBtn = document.getElementById('editAvatarBtn');
+    if (editAvatarBtn) {
+        editAvatarBtn.addEventListener('click', showEmojiPicker);
     }
 
     // Кнопка сохранения
@@ -218,29 +239,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Кнопки действий
-    const depositBtn = document.getElementById('depositBtn');
-    if (depositBtn) {
-        depositBtn.addEventListener('click', () => {
-            alert('💰 Пополнение скоро будет доступно');
-        });
-    }
+    document.getElementById('depositBtn')?.addEventListener('click', () => alert('💰 Пополнение скоро будет доступно'));
+    document.getElementById('withdrawBtn')?.addEventListener('click', () => alert('💸 Вывод средств скоро будет доступен'));
+    
+    document.getElementById('termsBtn')?.addEventListener('click', () => {
+        alert('📋 Условия использования:\n\n• Создавайте уникальные кубы\n• Участвуйте в аукционах\n• Зарабатывайте TON');
+        document.getElementById('settingsModal')?.classList.remove('show');
+    });
 
-    const withdrawBtn = document.getElementById('withdrawBtn');
-    if (withdrawBtn) {
-        withdrawBtn.addEventListener('click', () => {
-            alert('💸 Вывод средств скоро будет доступен');
-        });
-    }
-
-    const termsBtn = document.getElementById('termsBtn');
-    if (termsBtn) {
-        termsBtn.addEventListener('click', () => {
-            alert('📋 Условия использования:\n\n• Создавайте уникальные кубы\n• Участвуйте в аукционах\n• Зарабатывайте TON');
-            document.getElementById('settingsModal')?.classList.remove('show');
-        });
-    }
-
-    // Добавление новой истории (демо)
+    // Демо-история
     setTimeout(() => {
         const historyList = document.getElementById('historyList');
         if (historyList) {
