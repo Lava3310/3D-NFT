@@ -1,38 +1,11 @@
 import { initTheme } from './utils.js';
-import { initTelegramWidget, loginUser } from './auth.js';
+import { initTelegramWidget } from './auth.js';
 
-// ===== Инициализация =====
-document.addEventListener('DOMContentLoaded', async () => {
+// ===== Инициализация при загрузке =====
+document.addEventListener('DOMContentLoaded', () => {
+    // Инициализируем тему
     initTheme();
     
-    // ===== Пытаемся получить данные из Telegram Mini App =====
-    const tg = window.Telegram?.WebApp;
-    
-    if (tg) {
-        tg.expand(); // растягиваем на весь экран
-        tg.ready();  // говорим Telegram, что приложение готово
-        
-        const user = tg.initDataUnsafe?.user;
-        
-        if (user) {
-            console.log('Автовход из Telegram:', user);
-            
-            // Преобразуем данные в нужный формат
-            const telegramData = {
-                id: user.id,
-                first_name: user.first_name,
-                last_name: user.last_name,
-                username: user.username,
-                photo_url: user.photo_url
-            };
-            
-            // Выполняем вход
-            await loginUser(telegramData);
-            return; // после входа дальше не идём
-        }
-    }
-    
-    // Если не в Telegram или нет данных — показываем виджет
-    console.log('Не в Telegram Mini App, показываем виджет');
+    // Инициализируем виджет Telegram
     initTelegramWidget();
 });
