@@ -199,14 +199,35 @@ function toggleEditMode(enable) {
 async function saveChanges() {
     const nameInput = document.getElementById('editNameInput');
     const newName = nameInput.value.trim();
+    const currentName = document.getElementById('userName').textContent;
     
-    if (newName && newName !== document.getElementById('userName').textContent) {
-        const success = await updateUserName(newName);
-        if (success) {
-            document.getElementById('userName').textContent = newName;
-        }
+    if (!newName) {
+        alert('Имя не может быть пустым');
+        return;
     }
     
+    if (newName === currentName) {
+        toggleEditMode(false);
+        return;
+    }
+    
+    // Отправляем в базу
+    const { error } = await supabase
+        .from('users')
+        .update({ username: newName })
+        .eq('id', userId);
+
+    if (error) {
+        console.error('Ошибка при обновлении имени:', error);
+        alert('❌ Не удалось обновить имя');
+        return;
+    }
+    
+    // Обновляем локально
+    document.getElementById('userName').textContent = newName;
+    localStorage.setItem('userName', newName);
+    
+    alert('✅ Имя успешно обновлено');
     toggleEditMode(false);
 }
 
