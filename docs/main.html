@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>3D NFT · главная</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <div class="main-container">
+        <div class="main-content">
+            <!-- Верхняя панель -->
+            <div class="balance-section">
+                <div class="balance-top">
+                    <div class="balance-info">
+                        <div class="balance-label">Баланс</div>
+                        <div class="balance-row">
+                            <span class="balance-amount" id="balance">125</span>
+                            <span class="balance-currency">TON</span>
+                        </div>
+                    </div>
+                    <button class="settings-icon" id="settingsBtn">⚙️</button>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="action-btn" id="depositBtn">
+                        <span class="action-icon">+</span>
+                        <span class="action-text">Пополнить</span>
+                    </button>
+                    <button class="action-btn" id="withdrawBtn">
+                        <span class="action-icon">↑</span>
+                        <span class="action-text">Вывести</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Контент -->
+            <div class="content-area" id="contentArea">
+                <div class="placeholder-card" id="homeContent">
+                    <h3>🏠 Главная</h3>
+                    <p>Здесь будут твои 3D NFT</p>
+                </div>
+                <!-- остальные вкладки -->
+            </div>
+
+            <!-- Нижний бар -->
+            <div class="bottom-nav" id="bottomNav">
+                <div class="nav-item active" data-tab="home">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-label">Главная</span>
+                </div>
+                <div class="nav-item" data-tab="top">
+                    <span class="nav-icon">🏆</span>
+                    <span class="nav-label">Топ</span>
+                </div>
+                <div class="nav-item" data-tab="market">
+                    <span class="nav-icon">🛒</span>
+                    <span class="nav-label">Маркет</span>
+                </div>
+                <div class="nav-item" data-tab="auction">
+                    <span class="nav-icon">⚡</span>
+                    <span class="nav-label">Аукцион</span>
+                </div>
+                <div class="nav-item" data-tab="events">
+                    <span class="nav-icon">🎉</span>
+                    <span class="nav-label">События</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-sheet">
+            <h2>Настройки</h2>
+            
+            <div class="modal-item">
+                <span>Тема</span>
+                <button class="modal-btn" id="themeToggle">
+                    <span id="themeText">🌙 Тёмная</span>
+                </button>
+            </div>
+            
+            <div class="modal-item">
+                <span>Профиль</span>
+                <button class="modal-btn" id="profileBtn">Открыть</button>
+            </div>
+            
+            <div class="modal-item">
+                <span>Уведомления</span>
+                <button class="notif-btn" id="notifToggle">Вкл</button>
+            </div>
+            
+            <div class="modal-item">
+                <span>Условия</span>
+                <button class="modal-btn" id="termsBtn">Читать</button>
+            </div>
+
+            <button class="close-modal" id="closeSettings">Закрыть</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
