@@ -18,34 +18,8 @@ if (!userId) {
 // ===== Состояние редактирования =====
 let isEditing = false;
 
-// ===== Валидация TON кошелька (улучшенная) =====
-function isValidTonWallet(address) {
-    if (!address) return false;
-    
-    // Убираем пробелы и дефисы
-    const cleanAddress = address.replace(/[\s-]/g, '');
-    
-    // TON адреса начинаются с EQ, UQ или 0Q
-    const validPrefixes = ['EQ', 'UQ', '0Q'];
-    const hasValidPrefix = validPrefixes.some(prefix => cleanAddress.startsWith(prefix));
-    
-    if (!hasValidPrefix) {
-        console.log('Неверный префикс');
-        return false;
-    }
-    
-    // Длина должна быть 48 символов
-    if (cleanAddress.length !== 48) {
-        console.log('Неверная длина:', cleanAddress.length);
-        return false;
-    }
-    
-    // Проверяем, что остальные символы допустимы (Base64)
-    const base64Regex = /^[A-Za-z0-9+/]+=*$/;
-    const body = cleanAddress.slice(2);
-    
-    return base64Regex.test(body);
-}
+// ===== TON Connect =====
+let tonConnectUI;
 
 // ===== Загрузка профиля =====
 async function loadProfile() {
@@ -85,12 +59,57 @@ async function loadProfile() {
 
     // Оценочная стоимость
     document.getElementById('estimatedValue').textContent = user.balance_ton ? `${user.balance_ton * 10} TON` : '0 TON';
+}
 
-    // Скрываем панель кошелька, если он уже подключён
-    if (user.wallet_address) {
-        const connectPanel = document.getElementById('connectPanel');
-        if (connectPanel) connectPanel.style.display = 'none';
+// ===== Обновление кошелька в БД =====
+async function updateWalletInDB(walletAddress) {
+    const { error } = await supabase
+        .from('users')
+        .update({ wallet_address: walletAddress })
+        .eq('id', userId);
+
+    if (error) {
+        console.error('Ошибка при обновлении кошелька:', error);
+        alert('❌ Ошибка при сохранении кошелька');
+        return false;
     }
+    
+    document.getElementById('walletDisplay').textContent = walletAddress;
+    alert('✅ Кошелёк успешно подключён');
+    return true;
+}
+
+// ===== Инициализация TON Connect =====
+async function initTonConnect() {
+    // Ждём загрузки TON Connect UI
+    if (!window.TONConnectUI) {
+        console.error('TON Connect UI не загружен');
+        return;
+    }
+
+    tonConnectUI = new TONConnectUI.TONConnectUI({
+        manifestUrl: 'https://lava3310.github.io/3D-NFT/tonconnect-manifest.json',
+        buttonRootId: 'ton-connect-button'
+    });
+
+    // Проверяем, был ли уже подключён кошелёк
+    const currentWallet = await tonConnectUI.getCurrentWallet();
+    if (currentWallet) {
+        const address = currentWallet.account.address;
+        await updateWalletInDB(address);
+    }
+
+    // Слушаем изменения подключения
+    tonConnectUI.onStatusChange(async (wallet) => {
+        if (wallet) {
+            const address = wallet.account.address;
+            await updateWalletInDB(address);
+        } else {
+            // Отключили кошелёк
+            await updateWalletInDB(null);
+            document.getElementById('walletDisplay').textContent = 'Кошелёк не подключён';
+        }
+    });
 }
 
 // ===== Загрузка аватара в Storage =====
@@ -148,63 +167,30 @@ async function updateUserName(newName) {
     return true;
 }
 
-// ===== Редактирование кошелька =====
-async function updateWallet(newWallet) {
-    // Очищаем от пробелов и дефисов
-    const cleanWallet = newWallet.replace(/[\s-]/g, '');
-    
-    // Проверка формата
-    if (!isValidTonWallet(cleanWallet)) {
-        alert('❌ Неверный формат TON кошелька\n\nАдрес должен:\n• Начинаться с EQ, UQ или 0Q\n• Быть длиной 48 символов');
-        return false;
-    }
-    
-    const { error } = await supabase
-        .from('users')
-        .update({ wallet_address: cleanWallet })
-        .eq('id', userId);
-
-    if (error) {
-        console.error('Ошибка при обновлении кошелька:', error);
-        alert('❌ Ошибка при сохранении кошелька');
-        return false;
-    }
-    
-    alert('✅ Кошелёк успешно подключён');
-    return true;
-}
-
 // ===== Включение/выключение режима редактирования =====
 function toggleEditMode(enable) {
     isEditing = enable;
     
     const nameDisplay = document.getElementById('userName');
-    const walletDisplay = document.getElementById('walletDisplay');
     const editAvatarBtn = document.getElementById('editAvatarBtn');
     
     const nameInput = document.getElementById('editNameInput');
-    const walletInput = document.getElementById('editWalletInput');
     const editActions = document.getElementById('editActions');
     
     if (enable) {
         nameDisplay.style.display = 'none';
-        walletDisplay.style.display = 'none';
         if (editAvatarBtn) editAvatarBtn.style.display = 'flex';
         
         nameInput.style.display = 'block';
-        walletInput.style.display = 'block';
         editActions.style.display = 'flex';
         
         nameInput.value = nameDisplay.textContent;
-        walletInput.value = walletDisplay.textContent === 'Кошелёк не подключён' ? '' : walletDisplay.textContent;
         
     } else {
         nameDisplay.style.display = 'block';
-        walletDisplay.style.display = 'block';
         if (editAvatarBtn) editAvatarBtn.style.display = 'none';
         
         nameInput.style.display = 'none';
-        walletInput.style.display = 'none';
         editActions.style.display = 'none';
     }
 }
@@ -212,27 +198,16 @@ function toggleEditMode(enable) {
 // ===== Сохранение изменений =====
 async function saveChanges() {
     const nameInput = document.getElementById('editNameInput');
-    const walletInput = document.getElementById('editWalletInput');
-    
     const newName = nameInput.value.trim();
-    const newWallet = walletInput.value.trim();
-    
-    let success = true;
     
     if (newName && newName !== document.getElementById('userName').textContent) {
-        success = success && await updateUserName(newName);
+        const success = await updateUserName(newName);
+        if (success) {
+            document.getElementById('userName').textContent = newName;
+        }
     }
     
-    if (newWallet && newWallet !== document.getElementById('walletDisplay').textContent) {
-        success = success && await updateWallet(newWallet);
-    }
-    
-    if (success) {
-        if (newName) document.getElementById('userName').textContent = newName;
-        if (newWallet) document.getElementById('walletDisplay').textContent = newWallet;
-        
-        toggleEditMode(false);
-    }
+    toggleEditMode(false);
 }
 
 // ===== Инициализация =====
@@ -243,6 +218,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     initBalanceSimulation('balance', 'estimatedValue', 125, 1250);
 
     await loadProfile();
+
+    // Инициализация TON Connect
+    await initTonConnect();
 
     // Кнопка назад
     const backBtn = document.getElementById('backBtn');
@@ -273,13 +251,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const file = e.target.files[0];
             if (!file) return;
             
-            // Проверка размера (макс 2MB)
             if (file.size > 2 * 1024 * 1024) {
                 alert('Файл слишком большой. Максимум 2MB');
                 return;
             }
             
-            // Проверка типа
             if (!file.type.startsWith('image/')) {
                 alert('Можно загружать только изображения');
                 return;
@@ -296,7 +272,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     avatarImg.style.display = 'block';
                     avatarPlaceholder.style.display = 'none';
                     
-                    // Выходим из режима редактирования после загрузки
                     toggleEditMode(false);
                 }
             }
@@ -314,35 +289,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (cancelBtn) {
         cancelBtn.addEventListener('click', () => {
             toggleEditMode(false);
-        });
-    }
-
-    // Подключение кошелька
-    const connectSubmit = document.getElementById('connectSubmit');
-    const walletInput = document.getElementById('walletInput');
-    const walletDisplay = document.getElementById('walletDisplay');
-    const connectPanel = document.getElementById('connectPanel');
-
-    if (connectSubmit) {
-        // Авто-форматирование поля ввода
-        walletInput.addEventListener('input', (e) => {
-            // Убираем пробелы и переводим в верхний регистр
-            e.target.value = e.target.value.replace(/\s/g, '').toUpperCase();
-        });
-
-        connectSubmit.addEventListener('click', async () => {
-            const walletAddress = walletInput.value.trim();
-            if (!walletAddress) {
-                alert('Введите адрес кошелька');
-                return;
-            }
-            
-            const success = await updateWallet(walletAddress);
-            if (success) {
-                walletDisplay.textContent = walletAddress;
-                connectPanel.style.display = 'none';
-                walletInput.value = ''; // очищаем поле
-            }
         });
     }
 

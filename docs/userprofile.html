@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="css/profile.css">
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- TON Connect -->
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 </head>
 <body>
     <div class="profile-container">
@@ -55,7 +57,7 @@
                         <img src="" alt="avatar" id="userAvatar" class="avatar-img" style="display: none;">
                         <div class="avatar-placeholder" id="avatarPlaceholder">👤</div>
                         
-                        <!-- Кнопка изменения аватара (появляется в режиме редактирования) -->
+                        <!-- Кнопка изменения аватара -->
                         <button class="avatar-edit-btn" id="editAvatarBtn" style="display: none;">
                             <span class="avatar-edit-icon">📷</span>
                         </button>
@@ -70,7 +72,9 @@
                     <input type="text" id="editNameInput" class="edit-input" placeholder="Новое имя" style="display: none;">
                     
                     <div class="wallet-address" id="walletDisplay">Кошелёк не подключён</div>
-                    <input type="text" id="editWalletInput" class="edit-input" placeholder="Адрес кошелька" style="display: none;">
+                    
+                    <!-- Кнопка TON Connect (будет заменена через JS) -->
+                    <div id="ton-connect-button"></div>
                     
                     <div class="register-date" id="registerDate"></div>
                 </div>
@@ -83,11 +87,11 @@
                 <button class="edit-btn" id="editProfileBtn">✎</button>
             </div>
 
-            <!-- Плашка подключения кошелька -->
-            <div class="connect-wallet-panel" id="connectPanel">
+            <!-- Плашка подключения кошелька (старая) - СКРЫВАЕМ -->
+            <div class="connect-wallet-panel" id="connectPanel" style="display: none;">
                 <div class="connect-title">Подключить TON кошелёк</div>
-                <input type="text" class="wallet-input" id="walletInput" placeholder="Введите адрес кошелька">
-                <button class="connect-submit" id="connectSubmit">Подключить</button>
+                <input type="text" class="wallet-input" id="walletInput" placeholder="Введите адрес кошелька" style="display: none;">
+                <button class="connect-submit" id="connectSubmit" style="display: none;">Подключить</button>
             </div>
 
             <!-- История действий -->
