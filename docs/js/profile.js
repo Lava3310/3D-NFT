@@ -5,7 +5,7 @@ import { loadUser } from './auth.js';
 import { createSupabaseClient } from './utils.js';
 
 const SUPABASE_URL = 'https://kkellolonnuyqdfngmzk.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_sB1ZOY6NKpznS8on4tWKgw_JdMV5EXt';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrZWxsb2xvbm51eXFkZm5nbXprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxMTM4MjAsImV4cCI6MjA1NzY4OTgyMH0.KeR2F8hVeQZGe08ZbcF97gR8hTrvLWslbFv23vEClKc';
 
 const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -14,9 +14,6 @@ const userId = localStorage.getItem('userId');
 if (!userId) {
     window.location.href = 'index.html';
 }
-
-// ===== Список доступных эмодзи для аватара =====
-const avatarEmojis = ['👤', '😎', '🦸', '🐉', '🚀', '🌟', '🎮', '💎', '🔥', '🌈'];
 
 // ===== Состояние редактирования =====
 let isEditing = false;
@@ -31,9 +28,22 @@ async function loadProfile() {
 
     // Основные данные
     document.getElementById('userName').textContent = user.username;
-    document.getElementById('userAvatar').textContent = user.avatar || '👤';
     document.getElementById('walletDisplay').textContent = user.wallet_address || 'Кошелёк не подключён';
     document.getElementById('balance').textContent = user.balance_ton || 0;
+
+    // Аватар
+    const avatarImg = document.getElementById('userAvatar');
+    const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+    
+    if (user.avatar && user.avatar.startsWith('http')) {
+        avatarImg.src = user.avatar;
+        avatarImg.style.display = 'block';
+        avatarPlaceholder.style.display = 'none';
+    } else {
+        avatarPlaceholder.textContent = user.avatar || '👤';
+        avatarPlaceholder.style.display = 'flex';
+        avatarImg.style.display = 'none';
+    }
 
     // Дата регистрации
     const registerElement = document.getElementById('registerDate');
@@ -52,6 +62,43 @@ async function loadProfile() {
         const connectPanel = document.getElementById('connectPanel');
         if (connectPanel) connectPanel.style.display = 'none';
     }
+}
+
+// ===== Загрузка аватара в Storage =====
+async function uploadAvatar(file) {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${userId}-${Date.now()}.${fileExt}`;
+    const filePath = `avatars/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+    if (uploadError) {
+        console.error('Ошибка загрузки:', uploadError);
+        return null;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+    return publicUrl;
+}
+
+// ===== Обновление аватара в БД =====
+async function updateAvatar(avatarUrl) {
+    const { error } = await supabase
+        .from('users')
+        .update({ avatar: avatarUrl })
+        .eq('id', userId);
+
+    if (error) {
+        console.error('Ошибка при обновлении аватара:', error);
+        alert('Не удалось обновить аватар');
+        return false;
+    }
+    return true;
 }
 
 // ===== Редактирование имени =====
@@ -86,52 +133,12 @@ async function updateWallet(newWallet) {
     return true;
 }
 
-// ===== Редактирование аватара (эмодзи) =====
-async function updateAvatar(newAvatar) {
-    const { error } = await supabase
-        .from('users')
-        .update({ avatar: newAvatar })
-        .eq('id', userId);
-
-    if (error) {
-        console.error('Ошибка при обновлении аватара:', error);
-        alert('Не удалось обновить аватар');
-        return false;
-    }
-    return true;
-}
-
-// ===== Показать выбор эмодзи =====
-function showEmojiPicker() {
-    const container = document.getElementById('emojiPicker');
-    if (!container) return;
-    
-    container.innerHTML = '';
-    container.style.display = 'flex';
-    
-    avatarEmojis.forEach(emoji => {
-        const btn = document.createElement('button');
-        btn.className = 'emoji-btn';
-        btn.textContent = emoji;
-        btn.onclick = async () => {
-            const success = await updateAvatar(emoji);
-            if (success) {
-                document.getElementById('userAvatar').textContent = emoji;
-                container.style.display = 'none';
-                toggleEditMode(false);
-            }
-        };
-        container.appendChild(btn);
-    });
-}
-
 // ===== Включение/выключение режима редактирования =====
 function toggleEditMode(enable) {
     isEditing = enable;
     
     const nameDisplay = document.getElementById('userName');
     const walletDisplay = document.getElementById('walletDisplay');
-    const avatarDisplay = document.getElementById('userAvatar');
     const editAvatarBtn = document.getElementById('editAvatarBtn');
     
     const nameInput = document.getElementById('editNameInput');
@@ -141,8 +148,7 @@ function toggleEditMode(enable) {
     if (enable) {
         nameDisplay.style.display = 'none';
         walletDisplay.style.display = 'none';
-        avatarDisplay.style.display = 'none';
-        if (editAvatarBtn) editAvatarBtn.style.display = 'none';
+        editAvatarBtn.style.display = 'none';
         
         nameInput.style.display = 'block';
         walletInput.style.display = 'block';
@@ -154,16 +160,11 @@ function toggleEditMode(enable) {
     } else {
         nameDisplay.style.display = 'block';
         walletDisplay.style.display = 'block';
-        avatarDisplay.style.display = 'block';
-        if (editAvatarBtn) editAvatarBtn.style.display = 'block';
+        editAvatarBtn.style.display = 'block';
         
         nameInput.style.display = 'none';
         walletInput.style.display = 'none';
         editActions.style.display = 'none';
-        
-        // Скрываем панель выбора эмодзи
-        const emojiPicker = document.getElementById('emojiPicker');
-        if (emojiPicker) emojiPicker.style.display = 'none';
     }
 }
 
@@ -220,8 +221,30 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Кнопка редактирования аватара
     const editAvatarBtn = document.getElementById('editAvatarBtn');
-    if (editAvatarBtn) {
-        editAvatarBtn.addEventListener('click', showEmojiPicker);
+    const avatarUpload = document.getElementById('avatarUpload');
+    
+    if (editAvatarBtn && avatarUpload) {
+        editAvatarBtn.addEventListener('click', () => {
+            avatarUpload.click();
+        });
+        
+        avatarUpload.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const avatarUrl = await uploadAvatar(file);
+            if (avatarUrl) {
+                const success = await updateAvatar(avatarUrl);
+                if (success) {
+                    const avatarImg = document.getElementById('userAvatar');
+                    const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+                    
+                    avatarImg.src = avatarUrl;
+                    avatarImg.style.display = 'block';
+                    avatarPlaceholder.style.display = 'none';
+                }
+            }
+        });
     }
 
     // Кнопка сохранения
@@ -235,6 +258,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (cancelBtn) {
         cancelBtn.addEventListener('click', () => {
             toggleEditMode(false);
+        });
+    }
+
+    // Подключение кошелька
+    const connectSubmit = document.getElementById('connectSubmit');
+    const walletInput = document.getElementById('walletInput');
+    const walletDisplay = document.getElementById('walletDisplay');
+    const connectPanel = document.getElementById('connectPanel');
+
+    if (connectSubmit) {
+        connectSubmit.addEventListener('click', async () => {
+            const walletAddress = walletInput.value.trim();
+            if (walletAddress) {
+                const success = await updateWallet(walletAddress);
+                if (success) {
+                    walletDisplay.textContent = walletAddress;
+                    connectPanel.style.display = 'none';
+                }
+            } else {
+                alert('Введите адрес кошелька');
+            }
         });
     }
 

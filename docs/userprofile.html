@@ -50,7 +50,10 @@
 
             <!-- Профиль пользователя -->
             <div class="user-card">
-                <div class="avatar" id="userAvatar">👤</div>
+                <div class="avatar-container">
+                    <img src="" alt="avatar" id="userAvatar" class="avatar-img" style="display: none;">
+                    <div class="avatar-placeholder" id="avatarPlaceholder">👤</div>
+                </div>
                 <div class="user-info">
                     <div class="user-name" id="userName">Загрузка...</div>
                     <input type="text" id="editNameInput" class="edit-input" placeholder="Новое имя" style="display: none;">
@@ -60,8 +63,8 @@
                     
                     <div class="register-date" id="registerDate"></div>
                     
-                    <!-- Панель выбора эмодзи для аватара -->
-                    <div id="emojiPicker" class="emoji-picker" style="display: none;"></div>
+                    <!-- Скрытый input для загрузки файла -->
+                    <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
                 </div>
                 
                 <div class="edit-actions" id="editActions" style="display: none;">
@@ -70,10 +73,10 @@
                 </div>
                 
                 <button class="edit-btn" id="editProfileBtn">✎</button>
-                <button class="edit-avatar-btn" id="editAvatarBtn">🔄</button>
+                <button class="edit-avatar-btn" id="editAvatarBtn">📷</button>
             </div>
 
-            <!-- Плашка подключения кошелька (пока не подключён) -->
+            <!-- Плашка подключения кошелька -->
             <div class="connect-wallet-panel" id="connectPanel">
                 <div class="connect-title">Подключить TON кошелёк</div>
                 <input type="text" class="wallet-input" id="walletInput" placeholder="Введите адрес кошелька">
