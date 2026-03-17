@@ -7,12 +7,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // ===== Проверяем, не вернулись ли мы с OAuth =====
     const urlParams = new URLSearchParams(window.location.search);
-    const tgAuthData = urlParams.get('tgAuthData');
-    
-    if (tgAuthData) {
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+
+    // Telegram может передать данные в query или hash
+    const tgData = urlParams.get('tgAuthData') || hashParams.get('tgAuthData');
+
+    if (tgData) {
         try {
-            // Парсим данные, которые вернул Telegram
-            const user = JSON.parse(decodeURIComponent(tgAuthData));
+            const user = JSON.parse(decodeURIComponent(tgData));
             await loginUser(user);
             return;
         } catch (e) {
