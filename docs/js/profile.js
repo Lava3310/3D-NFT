@@ -88,7 +88,7 @@ async function initTonConnect() {
     }
 
     tonConnectUI = new TONConnectUI.TONConnectUI({
-        manifestUrl: 'https://lava3310.github.io/3D-NFT/tonconnect-manifest.json',
+        manifestUrl: 'https://lava3310.github.io/3D-NFT/docs/tonconnect-manifest.json',
         buttonRootId: 'ton-connect-button'
     });
 
