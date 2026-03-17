@@ -48,12 +48,28 @@
 
             <!-- Профиль -->
             <div class="user-card">
-                <div class="avatar">👤</div>
+                <div class="avatar" id="userAvatar">👤</div>
                 <div class="user-info">
-                    <div class="user-name" id="userName">CryptoBuilder</div>
+                    <div class="user-name" id="userName">Загрузка...</div>
+                    <input type="text" id="editNameInput" class="edit-input" placeholder="Новое имя" style="display: none;">
+                    
                     <div class="wallet-address" id="walletDisplay">Кошелёк не подключён</div>
+                    <input type="text" id="editWalletInput" class="edit-input" placeholder="Адрес кошелька" style="display: none;">
+                    
                     <div class="register-date" id="registerDate"></div>
+                    
+                    <div class="avatar-edit">
+                        <span>Аватар:</span>
+                        <span id="userAvatarDisplay">👤</span>
+                        <input type="text" id="editAvatarInput" class="edit-input" placeholder="Новый аватар (эмодзи)" style="display: none;" value="👤">
+                    </div>
                 </div>
+                
+                <div class="edit-actions" id="editActions" style="display: none;">
+                    <button class="edit-action-btn save-btn" id="saveEditBtn">💾</button>
+                    <button class="edit-action-btn cancel-btn" id="cancelEditBtn">✕</button>
+                </div>
+                
                 <button class="edit-btn" id="editProfileBtn">✎</button>
             </div>
 

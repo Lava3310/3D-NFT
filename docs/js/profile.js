@@ -1,11 +1,11 @@
 import { initTheme, initModal, initNotifications, initBalanceSimulation } from './utils.js';
 import { loadUser } from './auth.js';
 
-// ===== Supabase клиент (если не импортирован из auth.js) =====
+// ===== Supabase клиент =====
 import { createSupabaseClient } from './utils.js';
 
 const SUPABASE_URL = 'https://kkellolonnuyqdfngmzk.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_sB1ZOY6NKpznS8on4tWKgw_JdMV5EXt';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrZWxsb2xvbm51eXFkZm5nbXprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxMTM4MjAsImV4cCI6MjA1NzY4OTgyMH0.KeR2F8hVeQZGe08ZbcF97gR8hTrvLWslbFv23vEClKc';
 
 const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -14,6 +14,9 @@ const userId = localStorage.getItem('userId');
 if (!userId) {
     window.location.href = 'index.html';
 }
+
+// ===== Состояние редактирования =====
+let isEditing = false;
 
 // ===== Загрузка профиля =====
 async function loadProfile() {
@@ -38,8 +41,14 @@ async function loadProfile() {
         registerElement.textContent = `На сайте с ${date}`;
     }
 
-    // Оценочная стоимость (позже будет считаться)
+    // Оценочная стоимость
     document.getElementById('estimatedValue').textContent = user.balance_ton ? `${user.balance_ton * 10} TON` : '0 TON';
+
+    // Скрываем панель кошелька, если он уже подключён
+    if (user.wallet_address) {
+        const connectPanel = document.getElementById('connectPanel');
+        if (connectPanel) connectPanel.style.display = 'none';
+    }
 }
 
 // ===== Редактирование имени =====
@@ -59,6 +68,112 @@ async function updateUserName(newName) {
     return true;
 }
 
+// ===== Редактирование кошелька =====
+async function updateWallet(newWallet) {
+    const { error } = await supabase
+        .from('users')
+        .update({ wallet_address: newWallet })
+        .eq('id', userId);
+
+    if (error) {
+        console.error('Ошибка при обновлении кошелька:', error);
+        alert('Не удалось обновить кошелёк');
+        return false;
+    }
+    return true;
+}
+
+// ===== Редактирование аватара =====
+async function updateAvatar(newAvatar) {
+    const { error } = await supabase
+        .from('users')
+        .update({ avatar: newAvatar })
+        .eq('id', userId);
+
+    if (error) {
+        console.error('Ошибка при обновлении аватара:', error);
+        alert('Не удалось обновить аватар');
+        return false;
+    }
+    return true;
+}
+
+// ===== Включение/выключение режима редактирования =====
+function toggleEditMode(enable) {
+    isEditing = enable;
+    
+    const nameDisplay = document.getElementById('userName');
+    const walletDisplay = document.getElementById('walletDisplay');
+    const avatarDisplay = document.getElementById('userAvatar');
+    
+    const nameInput = document.getElementById('editNameInput');
+    const walletInput = document.getElementById('editWalletInput');
+    const avatarInput = document.getElementById('editAvatarInput');
+    const editActions = document.getElementById('editActions');
+    
+    if (enable) {
+        // Прячем текст, показываем поля ввода
+        nameDisplay.style.display = 'none';
+        walletDisplay.style.display = 'none';
+        avatarDisplay.style.display = 'none';
+        
+        nameInput.style.display = 'block';
+        walletInput.style.display = 'block';
+        avatarInput.style.display = 'block';
+        editActions.style.display = 'flex';
+        
+        // Заполняем поля текущими значениями
+        nameInput.value = nameDisplay.textContent;
+        walletInput.value = walletDisplay.textContent === 'Кошелёк не подключён' ? '' : walletDisplay.textContent;
+        avatarInput.value = avatarDisplay.textContent;
+        
+    } else {
+        // Прячем поля, показываем текст
+        nameDisplay.style.display = 'block';
+        walletDisplay.style.display = 'block';
+        avatarDisplay.style.display = 'block';
+        
+        nameInput.style.display = 'none';
+        walletInput.style.display = 'none';
+        avatarInput.style.display = 'none';
+        editActions.style.display = 'none';
+    }
+}
+
+// ===== Сохранение изменений =====
+async function saveChanges() {
+    const nameInput = document.getElementById('editNameInput');
+    const walletInput = document.getElementById('editWalletInput');
+    const avatarInput = document.getElementById('editAvatarInput');
+    
+    const newName = nameInput.value.trim();
+    const newWallet = walletInput.value.trim();
+    const newAvatar = avatarInput.value.trim() || '👤';
+    
+    let success = true;
+    
+    if (newName && newName !== document.getElementById('userName').textContent) {
+        success = success && await updateUserName(newName);
+    }
+    
+    if (newWallet && newWallet !== document.getElementById('walletDisplay').textContent) {
+        success = success && await updateWallet(newWallet);
+    }
+    
+    if (newAvatar && newAvatar !== document.getElementById('userAvatar').textContent) {
+        success = success && await updateAvatar(newAvatar);
+    }
+    
+    if (success) {
+        // Обновляем отображение
+        document.getElementById('userName').textContent = newName || document.getElementById('userName').textContent;
+        document.getElementById('walletDisplay').textContent = newWallet || 'Кошелёк не подключён';
+        document.getElementById('userAvatar').textContent = newAvatar;
+        
+        toggleEditMode(false);
+    }
+}
+
 // ===== Инициализация =====
 document.addEventListener('DOMContentLoaded', async () => {
     // Базовые инициализации
@@ -70,57 +185,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Загружаем профиль
     await loadProfile();
 
-    // Кнопка назад
+    // Кнопка назад (ИСПРАВЛЕНО)
     const backBtn = document.getElementById('backBtn');
     if (backBtn) {
         backBtn.addEventListener('click', () => {
             window.location.href = 'main.html';
         });
+    } else {
+        console.error('Кнопка назад не найдена');
     }
 
-    // Подключение кошелька
-    const connectPanel = document.getElementById('connectPanel');
-    const walletInput = document.getElementById('walletInput');
-    const connectSubmit = document.getElementById('connectSubmit');
-    const walletDisplay = document.getElementById('walletDisplay');
-
-    if (connectSubmit) {
-        connectSubmit.addEventListener('click', async () => {
-            const walletAddress = walletInput.value.trim();
-            if (walletAddress) {
-                // Сохраняем в базу
-                const { error } = await supabase
-                    .from('users')
-                    .update({ wallet_address: walletAddress })
-                    .eq('id', userId);
-
-                if (error) {
-                    alert('Ошибка при сохранении кошелька');
-                } else {
-                    walletDisplay.textContent = walletAddress;
-                    connectPanel.style.display = 'none';
-                }
-            } else {
-                alert('Введите адрес кошелька');
-            }
+    // Кнопка редактирования
+    const editBtn = document.getElementById('editProfileBtn');
+    if (editBtn) {
+        editBtn.addEventListener('click', () => {
+            toggleEditMode(!isEditing);
         });
     }
 
-    // Редактирование имени
-    const editBtn = document.getElementById('editProfileBtn');
-    const userNameEl = document.getElementById('userName');
+    // Кнопка сохранения
+    const saveBtn = document.getElementById('saveEditBtn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', saveChanges);
+    }
 
-    if (editBtn) {
-        editBtn.addEventListener('click', async () => {
-            const currentName = userNameEl.textContent;
-            const newName = prompt('Введите новое имя пользователя:', currentName);
-            
-            if (newName && newName !== currentName) {
-                const success = await updateUserName(newName);
-                if (success) {
-                    userNameEl.textContent = newName;
-                }
-            }
+    // Кнопка отмены
+    const cancelBtn = document.getElementById('cancelEditBtn');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            toggleEditMode(false);
         });
     }
 
