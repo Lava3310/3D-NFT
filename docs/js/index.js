@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Telegram может передать данные в query или hash
     const tgData = urlParams.get('tgAuthResult') || hashParams.get('tgAuthResult');
-
+    console.log('Проверяем tgData:', tgData);
     if (tgData) {
         try {
             const user = JSON.parse(decodeURIComponent(tgData));
