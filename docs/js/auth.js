@@ -142,7 +142,7 @@ export function handleTelegramLogin() {
     
     // Формируем URL для OAuth
     const redirectUrl = encodeURIComponent('https://lava3310.github.io/3D-NFT/index.html');
-    const origin = encodeURIComponent('https://lava3310.github.io');
+    const origin = encodeURIComponent('https://lava3310.github.io/3D-NFT');
     
     const authUrl = `https://oauth.telegram.org/auth?bot_id=${botId}&origin=${origin}&redirect_url=${redirectUrl}&state=${state}&response_type=code`;
     
