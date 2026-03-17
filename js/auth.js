@@ -141,8 +141,9 @@ export function handleTelegramLogin() {
     
     // Формируем URL для OAuth
     const redirectUrl = encodeURIComponent(window.location.href);
-    const authUrl = `https://oauth.telegram.org/auth?bot_id=@${botName}&origin=${encodeURIComponent(window.location.origin)}&redirect_url=${redirectUrl}&state=${state}&response_type=code`;
-    
+    const botId = 8531815975;
+    const authUrl = `https://oauth.telegram.org/auth?bot_id=${botId}
+    &origin=${encodeURIComponent(window.location.origin)}&redirect_url=${redirectUrl}&state=${state}&response_type=code`;
     // Перенаправляем в том же окне
     window.location.href = authUrl;
 }
