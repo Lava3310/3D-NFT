@@ -61,7 +61,7 @@ export async function loginUser(telegramData) {
         
         // 4. Переходим на главную
         console.log(existingUser);
-        window.location.href = '/3D-NFT/main.html';
+        window.location.href = 'https://lava3310.github.io/3D-NFT/main.html';
         
         return true;
         
@@ -141,7 +141,7 @@ export function handleTelegramLogin() {
     localStorage.setItem('tg_state', state);
     
     // Формируем URL для OAuth
-    const redirectUrl = encodeURIComponent(window.location.href);
+    const redirectUrl = encodeURIComponent('https://lava3310.github.io/3D-NFT/index.html');
     const botId = 8531815975;
     const authUrl = `https://oauth.telegram.org/auth?bot_id=${botId}
     &origin=${encodeURIComponent(window.location.origin)}&redirect_url=${redirectUrl}&state=${state}&response_type=code`;
