@@ -130,3 +130,19 @@ export async function loadUser(userId) {
     
     return user;
 }
+
+// ===== Telegram OAuth (без виджета, в том же окне) =====
+export function handleTelegramLogin() {
+    const botName = 'nft3d_bot';
+    
+    // Генерируем случайный state для безопасности
+    const state = Math.random().toString(36).substring(7);
+    localStorage.setItem('tg_state', state);
+    
+    // Формируем URL для OAuth
+    const redirectUrl = encodeURIComponent(window.location.href);
+    const authUrl = `https://oauth.telegram.org/auth?bot_id=@${botName}&origin=${encodeURIComponent(window.location.origin)}&redirect_url=${redirectUrl}&state=${state}&response_type=code`;
+    
+    // Перенаправляем в том же окне
+    window.location.href = authUrl;
+}

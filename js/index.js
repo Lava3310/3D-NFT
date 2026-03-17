@@ -1,23 +1,37 @@
 import { initTheme } from './utils.js';
-import { initTelegramWidget, loginUser } from './auth.js';
+import { handleTelegramLogin, loginUser } from './auth.js';
 
 // ===== Инициализация =====
 document.addEventListener('DOMContentLoaded', async () => {
     initTheme();
     
+    // ===== Проверяем, не вернулись ли мы с OAuth =====
+    const urlParams = new URLSearchParams(window.location.search);
+    const tgAuthData = urlParams.get('tgAuthData');
+    
+    if (tgAuthData) {
+        try {
+            // Парсим данные, которые вернул Telegram
+            const user = JSON.parse(decodeURIComponent(tgAuthData));
+            await loginUser(user);
+            return;
+        } catch (e) {
+            console.error('Ошибка при обработке OAuth:', e);
+        }
+    }
+    
     // ===== Пытаемся получить данные из Telegram Mini App =====
     const tg = window.Telegram?.WebApp;
     
     if (tg) {
-        tg.expand(); // растягиваем на весь экран
-        tg.ready();  // говорим Telegram, что приложение готово
+        tg.expand();
+        tg.ready();
         
         const user = tg.initDataUnsafe?.user;
         
         if (user) {
             console.log('Автовход из Telegram:', user);
             
-            // Преобразуем данные в нужный формат
             const telegramData = {
                 id: user.id,
                 first_name: user.first_name,
@@ -26,32 +40,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 photo_url: user.photo_url
             };
             
-            // Выполняем вход
             await loginUser(telegramData);
-            return; // после входа дальше не идём
+            return;
         }
     }
     
-    // Если не в Telegram или нет данных — показываем виджет
-    console.log('Не в Telegram Mini App, показываем виджет');
-    initTelegramWidget();
-       // ===== Настраиваем кнопку =====
-    const customBtn = document.getElementById('customLoginBtn');
-    const widgetContainer = document.getElementById('telegram-login-container');
-    
-    if (customBtn && widgetContainer) {
-        // При клике на нашу кнопку эмулируем клик по iframe виджета
-        customBtn.addEventListener('click', () => {
-            const iframe = widgetContainer.querySelector('iframe');
-            if (iframe) {
-                // Создаём событие клика
-                const event = new MouseEvent('click', {
-                    view: window,
-                    bubbles: true,
-                    cancelable: true
-                });
-                iframe.dispatchEvent(event);
-            }
+    // ===== Обычный вход через кнопку =====
+    const loginBtn = document.getElementById('telegramLoginBtn');
+    if (loginBtn) {
+        loginBtn.addEventListener('click', () => {
+            handleTelegramLogin();
         });
     }
 });
