@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
 
     // Telegram может передать данные в query или hash
-    const tgData = urlParams.get('tgAuthData') || hashParams.get('tgAuthData');
+    const tgData = urlParams.get('tgAuthResult') || hashParams.get('tgAuthResult');
 
     if (tgData) {
         try {
