@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>3D NFT · Voxel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="app">
+        <!-- Верхний плавающий бар -->
+        <div class="top-bar-container">
+            <div class="top-bar glass" id="topBar">
+                <div class="user">
+                    <div class="avatar">
+                        <i class="fas fa-user-astronaut"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name" id="userName">CryptoBuilder</span>
+                        <span class="user-tag" id="userTag">@cryptobuilder</span>
+                    </div>
+                </div>
+                <button class="expand-btn" id="expandBtn">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <button class="theme-btn" id="themeToggle">🌙</button>
+            </div>
+
+            <div class="expanded-content" id="expandedContent">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-coins"></i>
+                        <div class="stat-detail">
+                            <span class="stat-label">Баланс</span>
+                            <span class="stat-value" id="balanceValue">125 TON</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-cubes"></i>
+                        <div class="stat-detail">
+                            <span class="stat-label">Кубы / Слоты</span>
+                            <span class="stat-value" id="cubesSlotsValue">3 / 8</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-chart-line"></i>
+                        <div class="stat-detail">
+                            <span class="stat-label">Оценка</span>
+                            <span class="stat-value" id="estimatedValue">~1 250 TON</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-wallet"></i>
+                        <div class="stat-detail">
+                            <span class="stat-label">Кошелёк</span>
+                            <span class="stat-value" id="walletValue">не подключён</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-alt"></i>
+                        <div class="stat-detail">
+                            <span class="stat-label">Регистрация</span>
+                            <span class="stat-value" id="regDateValue">21 мар 2026</span>
+                        </div>
+                    </div>
+                    <div class="stat-card double-buttons">
+                        <button class="edit-profile-btn" id="editProfileBtn"><i class="fas fa-edit"></i></button>
+                        <button class="logout-profile-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Контент страниц -->
+        <div class="page-content" id="pageContent">
+            <!-- Главная страница -->
+            <div class="page active" id="homePage">
+                <div class="scroll-content">
+                    <!-- Кнопка подключения Telegram -->
+                    <div class="connect-card glass" id="telegramCard">
+                        <div class="connect-icon"><i class="fab fa-telegram"></i></div>
+                        <div class="connect-info">
+                            <h3>Telegram</h3>
+                            <p>Войдите через Telegram для доступа к профилю</p>
+                        </div>
+                        <button class="connect-btn" id="connectTelegramBtn"><i class="fab fa-telegram"></i> Подключить</button>
+                    </div>
+                    <div class="connect-card glass hidden" id="walletCard">
+                        <div class="connect-icon"><i class="fas fa-wallet"></i></div>
+                        <div class="connect-info">
+                            <h3>TON кошелёк</h3>
+                            <p>Подключите кошелёк для покупок и продаж</p>
+                        </div>
+                        <button class="connect-btn" id="connectWalletBtn"><i class="fas fa-wallet"></i> Подключить</button>
+                    </div>
+
+                    <!-- Мои кубы -->
+                    <div class="glass section">
+                        <div class="section-title"><i class="fas fa-cube"></i> Мои кубы</div>
+                        <div class="cube-list">
+                            <div class="cube-card" data-minted="false">
+                                <div class="cube-preview"><i class="fas fa-cube"></i></div>
+                                <div class="cube-info">
+                                    <div class="cube-header">
+                                        <h4>Куб #1</h4>
+                                        <div class="owner-badge">
+                                            <i class="fas fa-user"></i>
+                                            <span>CryptoBuilder</span>
+                                        </div>
+                                    </div>
+                                    <div class="cube-stats">
+                                        <div class="stat-item"><i class="fas fa-expand-alt"></i><span class="stat-label">Размер</span><span class="stat-value">8x8x8</span></div>
+                                        <div class="stat-item"><i class="fas fa-fill-drip"></i><span class="stat-label">Заполн.</span><span class="stat-value">124/512</span></div>
+                                        <div class="stat-item"><i class="fas fa-star"></i><span class="stat-label">Статус</span><span class="stat-value">3/10</span></div>
+                                        <div class="stat-item"><i class="fas fa-coins"></i><span class="stat-label">Цена</span><span class="stat-value">1.24 TON</span></div>
+                                        <div class="stat-item"><i class="fas fa-chart-line"></i><span class="stat-label">Оценка</span><span class="stat-value">1.24 TON</span></div>
+                                        <div class="action-buttons">
+                                            <button class="action-btn view-btn" title="Просмотр"><i class="fas fa-eye"></i><span>Просмотр</span></button>
+                                            <button class="action-btn owners-btn" title="Владельцы"><i class="fas fa-users"></i><span>Владельцы</span></button>
+                                        </div>
+                                    </div>
+                                    <div class="cube-actions">
+                                        <button class="cube-btn mint-btn"><i class="fas fa-gem"></i> Минт</button>
+                                        <button class="cube-btn edit-btn"><i class="fas fa-edit"></i> Редактировать</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cube-card" data-minted="true">
+                                <div class="cube-preview"><i class="fas fa-gem"></i></div>
+                                <div class="cube-info">
+                                    <div class="cube-header">
+                                        <h4>Куб #2</h4>
+                                        <div class="owner-badge">
+                                            <i class="fas fa-user"></i>
+                                            <span>CryptoBuilder</span>
+                                        </div>
+                                    </div>
+                                    <div class="cube-stats">
+                                        <div class="stat-item"><i class="fas fa-expand-alt"></i><span class="stat-label">Размер</span><span class="stat-value">8³</span></div>
+                                        <div class="stat-item"><i class="fas fa-fill-drip"></i><span class="stat-label">Заполн.</span><span class="stat-value">89/512</span></div>
+                                        <div class="stat-item"><i class="fas fa-star"></i><span class="stat-label">Статус</span><span class="stat-value">7/10</span></div>
+                                        <div class="stat-item"><i class="fas fa-coins"></i><span class="stat-label">Цена</span><span class="stat-value">8.9 TON</span></div>
+                                        <div class="stat-item"><i class="fas fa-chart-line"></i><span class="stat-label">Оценка</span><span class="stat-value">8.9 TON</span></div>
+                                        <div class="action-buttons">
+                                            <button class="action-btn view-btn" title="Просмотр"><i class="fas fa-eye"></i><span>Просмотр</span></button>
+                                            <button class="action-btn owners-btn" title="Владельцы"><i class="fas fa-users"></i><span>Владельцы</span></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Воксели -->
+                    <div class="glass section">
+                        <div class="section-title"><i class="fas fa-dice-d6"></i> Воксели</div>
+                        <div class="voxel-list">
+                            <div class="voxel-card">
+                                <div class="voxel-preview"><i class="fas fa-mountain"></i></div>
+                                <div class="voxel-info">
+                                    <div class="voxel-header"><h4>Камень</h4></div>
+                                    <div class="voxel-stats-grid">
+                                        <div class="voxel-stat"><i class="fas fa-cubes"></i><span class="stat-label">Количество</span><span class="stat-value">15 шт</span></div>
+                                        <div class="voxel-stat"><i class="fas fa-tag"></i><span class="stat-label">Цена/шт</span><span class="stat-value">0.01 TON</span></div>
+                                        <div class="voxel-stat"><i class="fas fa-coins"></i><span class="stat-label">Общая стоимость</span><span class="stat-value accent">0.15 TON</span></div>
+                                        <div class="voxel-stat"><i class="fas fa-star"></i><span class="stat-label">Редкость</span><span class="stat-value rarity-value common">1/10</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- История -->
+                    <div class="glass section">
+                        <div class="section-title"><i class="fas fa-history"></i> История</div>
+                        <div class="history-list">
+                            <div class="history-item"><div class="history-icon"><i class="fas fa-coins"></i></div><div class="history-details"><div class="history-action">Пополнение</div><div class="history-time">2 ч назад</div></div><div class="history-value">+50 TON</div></div>
+                            <div class="history-item"><div class="history-icon"><i class="fas fa-cube"></i></div><div class="history-details"><div class="history-action">Создан куб #3</div><div class="history-time">вчера</div></div><div class="history-value">+430 вокс</div></div>
+                            <div class="history-item"><div class="history-icon"><i class="fas fa-gift"></i></div><div class="history-details"><div class="history-action">Бонус</div><div class="history-time">3 ч назад</div></div><div class="history-value">+10 TON</div></div>
+                        </div>
+                    </div>
+
+                    <!-- Документация -->
+                    <div class="glass section docs-section">
+                        <div class="section-title"><i class="fas fa-book-open"></i> Документация</div>
+                        <div class="docs-content">
+                            <p><strong>3D NFT · Voxel Universe</strong></p>
+                            <p>Создавай уникальные 3D-кубы из вокселей, владей ими и продавай.</p>
+                            <ul><li><i class="fas fa-cube"></i> Воксели — строй из них</li><li><i class="fas fa-gem"></i> NFT — фиксируй уникальность</li><li><i class="fas fa-store"></i> Маркет — покупай и продавай</li><li><i class="fas fa-wallet"></i> TON кошелёк — безопасные транзакции</li></ul>
+                            <p class="docs-footer">Версия 1.0 · © 2026</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <!-- Маркет страница -->
+        <div class="page" id="marketPage">
+            <div class="scroll-content">
+                <div class="market-tabs-container">
+                    <div class="market-tabs glass" id="marketTabs">
+                        <button class="market-tab active" data-market-tab="nft">
+                            <span><i class="fas fa-cube"></i> NFT</span>
+                        </button>
+                        <button class="market-tab" data-market-tab="voxels">
+                            <span><i class="fas fa-dice-d6"></i> Воксели</span>
+                        </button>
+                        <button class="market-tab" data-market-tab="auction">
+                            <span><i class="fas fa-gavel"></i> Аукцион</span>
+                        </button>
+                        <button class="market-tab" data-market-tab="shop">
+                            <span><i class="fas fa-store"></i> Магазин</span>
+                        </button>
+                        <button class="market-tab" data-market-tab="cases">
+                            <span><i class="fas fa-gift"></i> Кейсы</span>
+                        </button>
+                        <div class="tab-slider" id="tabSlider"></div>
+                    </div>
+                </div>
+
+                <div class="market-content active" id="marketNFT">
+                    <div class="section">
+                        <div class="section-title"><i class="fas fa-cube"></i> NFT на продажу</div>
+                        <p class="placeholder-text">✨ Здесь будут NFT кубы ✨</p>
+                    </div>
+                </div>
+                <div class="market-content" id="marketVoxels">
+                    <div class="section">
+                        <div class="section-title"><i class="fas fa-dice-d6"></i> Воксели на продажу</div>
+                        <p class="placeholder-text">🪨 Здесь будут воксели 🪨</p>
+                    </div>
+                </div>
+                <div class="market-content" id="marketAuction">
+                    <div class="section">
+                        <div class="section-title"><i class="fas fa-gavel"></i> Аукцион</div>
+                        <p class="placeholder-text">🔨 Торги скоро 🔨</p>
+                    </div>
+                </div>
+                <div class="market-content" id="marketShop">
+                    <div class="section">
+                        <div class="section-title"><i class="fas fa-store"></i> Магазин</div>
+                        <p class="placeholder-text">🛒 Покупка вокселей и ключей 🛒</p>
+                    </div>
+                </div>
+                <div class="market-content" id="marketCases">
+                    <div class="section">
+                        <div class="section-title"><i class="fas fa-gift"></i> Кейсы</div>
+                        <p class="placeholder-text">🎁 Лутбоксы скоро 🎁</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Нижний бар -->
+        <div class="bottom-bar-container">
+            <div class="bottom-bar glass">
+                <button class="nav-btn active" data-page="home">
+                    <i class="fas fa-home"></i>
+                    <span class="nav-label">Главная</span>
+                </button>
+                <button class="nav-btn" data-page="market">
+                    <i class="fas fa-store"></i>
+                    <span class="nav-label">Маркет</span>
+                </button>
+                <button class="nav-btn" data-page="quests">
+                    <i class="fas fa-tasks"></i>
+                    <span class="nav-label">Задания</span>
+                </button>
+                <button class="nav-btn" data-page="games">
+                    <i class="fas fa-gamepad"></i>
+                    <span class="nav-label">Игры</span>
+                </button>
+            </div>
+        </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,949 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Три темы */
+:root {
+    --bg-start: #0a1424;
+    --bg-end: #1a2a3a;
+    --surface: rgba(20, 35, 55, 0.7);
+    --card: rgba(25, 45, 65, 0.6);
+    --text: #ffffff;
+    --text-secondary: #a0b8d0;
+    --accent: #3a7bd5;
+    --border: rgba(80, 140, 255, 0.2);
+    --shadow: 0 8px 32px rgba(0, 20, 40, 0.3);
+    --tab-bg: rgba(30, 50, 70, 0.6);
+}
+
+body.light {
+    --bg-start: #e0ecff;
+    --bg-end: #d0e0ff;
+    --surface: rgba(255, 255, 255, 0.7);
+    --card: rgba(255, 255, 255, 0.6);
+    --text: #0a1a2a;
+    --text-secondary: #406898;
+    --accent: #2a7aff;
+    --border: rgba(42, 122, 255, 0.15);
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+    --tab-bg: rgba(255, 255, 255, 0.5);
+}
+
+body.ultra {
+    --bg-start: #03050a;
+    --bg-end: #0a0f17;
+    --surface: rgba(5, 10, 18, 0.8);
+    --card: rgba(8, 14, 24, 0.7);
+    --text: #e0eaff;
+    --text-secondary: #6b7f9f;
+    --accent: #2f6ed4;
+    --border: rgba(60, 100, 180, 0.25);
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    --tab-bg: rgba(10, 15, 25, 0.8);
+}
+
+body {
+    background: linear-gradient(135deg, var(--bg-start), var(--bg-end));
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.app {
+    height: 100vh;
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-top: 90px;
+    padding-bottom: 90px;
+}
+
+/* Верхний плавающий бар - фиксированный */
+.top-bar-container {
+    position: fixed;
+    top: 16px;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+    max-width: 600px;
+    margin: 0 auto;
+}
+.top-bar {
+    width: calc(100% - 32px);
+    max-width: 560px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 40px;
+    pointer-events: auto;
+    gap: 12px;
+    transition: border-radius 0.3s ease;
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+.top-bar.expanded {
+    border-radius: 28px 28px 0 0;
+    border-bottom: none;
+}
+.user {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+.avatar {
+    width: 44px;
+    height: 44px;
+    background: var(--accent);
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: white;
+}
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+.user-name {
+    font-weight: 600;
+    font-size: 16px;
+}
+.user-tag {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+.expand-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 30px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+    color: var(--text);
+}
+.expand-btn i {
+    font-size: 14px;
+    transition: transform 0.2s;
+}
+.theme-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 30px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+
+/* Раскрывающееся содержимое */
+.expanded-content {
+    width: calc(100% - 32px);
+    max-width: 560px;
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 0 0 28px 28px;
+    overflow: hidden;
+    max-height: 0;
+    padding: 0 16px;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    pointer-events: auto;
+}
+.expanded-content.open {
+    max-height: 500px;
+    padding: 16px;
+}
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+.stat-card {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid var(--border);
+}
+.stat-card i {
+    font-size: 20px;
+    color: var(--accent);
+}
+.stat-detail {
+    display: flex;
+    flex-direction: column;
+}
+.stat-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+.stat-value {
+    font-weight: 600;
+    font-size: 13px;
+}
+.double-buttons {
+    padding: 0;
+    display: flex;
+    gap: 8px;
+    background: transparent;
+    border: none;
+}
+.edit-profile-btn, .logout-profile-btn {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 12px 0;
+    font-size: 18px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.edit-profile-btn:hover, .logout-profile-btn:hover {
+    background: var(--card);
+    color: var(--text);
+}
+.edit-profile-btn:active, .logout-profile-btn:active {
+    transform: scale(0.96);
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+/* Контент */
+.page-content {
+    padding: 0;
+}
+.scroll-content {
+    padding: 0 16px 20px 16px;
+}
+
+/* Карточки подключения */
+.connect-card {
+    padding: 20px;
+    border-radius: 28px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+.connect-icon {
+    width: 52px;
+    height: 52px;
+    background: var(--surface);
+    border-radius: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: var(--accent);
+}
+.connect-info {
+    flex: 1;
+}
+.connect-info h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+.connect-info p {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+.connect-btn {
+    background: var(--accent);
+    border: none;
+    border-radius: 40px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.2s;
+}
+.connect-btn:active {
+    transform: scale(0.96);
+}
+.hidden {
+    display: none;
+}
+
+/* Секции */
+.section {
+    padding: 20px;
+    border-radius: 28px;
+    margin-bottom: 16px;
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.history-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+}
+.history-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--surface);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--accent);
+}
+.history-details {
+    flex: 1;
+}
+.history-action {
+    font-size: 14px;
+    font-weight: 500;
+}
+.history-time {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+.history-value {
+    font-weight: 600;
+    color: var(--accent);
+}
+
+/* Документация */
+.docs-section {
+    margin-bottom: 16px;
+}
+.docs-content {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+.docs-content p {
+    margin-bottom: 12px;
+}
+.docs-content ul {
+    margin: 12px 0;
+    padding-left: 20px;
+}
+.docs-content li {
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.docs-content li i {
+    width: 20px;
+    color: var(--accent);
+}
+.docs-footer {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 12px;
+}
+
+/* Нижний бар - фиксированный снизу */
+.bottom-bar-container {
+    position: fixed;
+    bottom: 16px;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    max-width: 600px;
+    margin: 0 auto;
+}
+.bottom-bar {
+    width: calc(100% - 32px);
+    max-width: 560px;
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 12px;
+    border-radius: 40px;
+    pointer-events: auto;
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    position: relative;
+}
+.nav-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 0;
+    border-radius: 30px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+.nav-btn i {
+    font-size: 22px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.nav-label {
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Анимация активной кнопки нижнего бара */
+.nav-btn.active {
+    color: var(--accent);
+    transform: translateY(-2px);
+}
+.nav-btn.active i {
+    transform: scale(1.1);
+    text-shadow: 0 0 10px rgba(58, 123, 213, 0.5);
+}
+.nav-btn.active .nav-label {
+    transform: scale(1.05);
+    font-weight: 600;
+}
+
+/* Эффект пульсации при нажатии */
+.nav-btn:active {
+    transform: scale(0.95);
+}
+.nav-btn:active i {
+    transform: scale(0.9);
+}
+
+/* Кубы - компактный и красивый дизайн */
+.cube-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.cube-card {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+    display: flex;
+    gap: 14px;
+}
+.cube-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+}
+.cube-preview {
+    width: 70px;
+    height: 70px;
+    background: var(--card);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+.cube-info {
+    flex: 1;
+    min-width: 0;
+}
+.cube-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.cube-header h4 {
+    font-size: 15px;
+    font-weight: 700;
+}
+.owner-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(58, 123, 213, 0.15);
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--accent);
+    border: 1px solid rgba(58, 123, 213, 0.3);
+    white-space: nowrap;
+}
+.owner-badge i {
+    font-size: 9px;
+}
+.cube-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    margin-bottom: 10px;
+}
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--card);
+    padding: 5px 6px;
+    border-radius: 10px;
+    font-size: 10px;
+    min-width: 0;
+}
+.stat-item i {
+    font-size: 10px;
+    color: var(--accent);
+    width: 14px;
+    flex-shrink: 0;
+}
+.stat-item .stat-label {
+    font-size: 9px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+.stat-item .stat-value {
+    font-size: 10px;
+    font-weight: 600;
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+/* Блок с кнопками действий (только иконки) */
+.action-buttons {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+}
+.action-btn {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 5px 0;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.action-btn i {
+    font-size: 14px;
+}
+.action-btn span {
+    display: none;
+}
+.action-btn:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    transform: scale(1.02);
+}
+.action-btn:active {
+    transform: scale(0.98);
+}
+
+/* Основные кнопки действий */
+.cube-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.cube-btn {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.cube-btn i {
+    font-size: 12px;
+}
+.mint-btn {
+    background: linear-gradient(135deg, #ff8844, #ffaa66);
+    border-color: transparent;
+    color: white;
+}
+.mint-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(255, 136, 68, 0.3);
+}
+.edit-btn {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+}
+.edit-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(58, 123, 213, 0.3);
+}
+
+/* Воксели */
+.voxel-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.voxel-card {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 14px;
+    display: flex;
+    gap: 12px;
+    border: 1px solid var(--border);
+}
+.voxel-preview {
+    width: 56px;
+    height: 56px;
+    background: var(--card);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+.voxel-info {
+    flex: 1;
+}
+.voxel-header {
+    margin-bottom: 10px;
+}
+.voxel-header h4 {
+    font-size: 15px;
+    font-weight: 700;
+}
+.voxel-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+}
+.voxel-stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--card);
+    padding: 5px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+}
+.voxel-stat i {
+    font-size: 10px;
+    color: var(--accent);
+    width: 14px;
+}
+.voxel-stat .stat-label {
+    font-size: 9px;
+    color: var(--text-secondary);
+}
+.voxel-stat .stat-value {
+    font-size: 10px;
+    font-weight: 600;
+    margin-left: auto;
+}
+.voxel-stat .stat-value.accent {
+    color: var(--accent);
+}
+.rarity-value.common {
+    color: #6c757d;
+}
+.rarity-value.rare {
+    color: #3a7bd5;
+}
+.rarity-value.legendary {
+    color: #ff8844;
+}
+
+/* Страницы с плавным переключением */
+.page {
+    display: none;
+    animation: pageSlide 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.page.active {
+    display: block;
+}
+
+@keyframes pageSlide {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Маркет табы */
+.market-tabs-container {
+    position: relative;
+    margin-bottom: 20px;
+}
+.market-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 60px;
+    background: var(--tab-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.market-tabs::-webkit-scrollbar {
+    display: none;
+}
+.market-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-radius: 40px;
+    padding: 10px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+}
+.market-tab span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.market-tab i {
+    font-size: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Анимация активной вкладки маркета */
+.market-tab.active {
+    color: white;
+    background: var(--accent);
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(58, 123, 213, 0.3);
+}
+.market-tab.active i {
+    transform: scale(1.1);
+}
+.market-tab.active span {
+    transform: scale(1.02);
+}
+
+/* Эффект при наведении для неактивных вкладок */
+.market-tab:not(.active):hover {
+    background: rgba(58, 123, 213, 0.1);
+    transform: translateY(-1px);
+}
+.market-tab:not(.active):hover i {
+    transform: scale(1.05);
+}
+
+/* Эффект при нажатии */
+.market-tab:active {
+    transform: scale(0.98);
+}
+
+/* Анимация появления контента */
+.market-content {
+    display: none;
+    animation: fadeSlide 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.market-content.active {
+    display: block;
+}
+
+@keyframes fadeSlide {
+    from {
+        opacity: 0;
+        transform: translateX(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Анимация для страниц */
+.page {
+    display: none;
+    animation: pageFade 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.page.active {
+    display: block;
+}
+
+@keyframes pageFade {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.market-content {
+    display: none;
+    animation: fadeSlide 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.market-content.active {
+    display: block;
+}
+
+@keyframes fadeSlide {
+    from {
+        opacity: 0;
+        transform: translateX(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.placeholder-text {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+/* Адаптация для маленьких экранов */
+@media (max-width: 480px) {
+    .cube-card {
+        padding: 12px;
+        gap: 10px;
+    }
+    .cube-preview {
+        width: 60px;
+        height: 60px;
+        font-size: 28px;
+    }
+    .cube-stats {
+        gap: 4px;
+    }
+    .stat-item {
+        padding: 4px 4px;
+    }
+    .stat-item i {
+        font-size: 9px;
+        width: 12px;
+    }
+    .stat-item .stat-label {
+        font-size: 8px;
+    }
+    .stat-item .stat-value {
+        font-size: 9px;
+    }
+    .action-btn i {
+        font-size: 12px;
+    }
+    .cube-btn {
+        padding: 5px 8px;
+        font-size: 10px;
+    }
+    .cube-btn i {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 380px) {
+    .stat-item .stat-label {
+        display: none;
+    }
+    .stat-item i {
+        width: auto;
+    }
+}
+
+/* Адаптация под скролл */
+.app::-webkit-scrollbar {
+    width: 4px;
+}
+.app::-webkit-scrollbar-track {
+    background: transparent;
+}
+.app::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 4px;
+}
